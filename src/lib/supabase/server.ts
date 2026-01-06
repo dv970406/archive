@@ -1,19 +1,21 @@
+"use server";
+
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import type { Database } from "@/src/database.types";
+import type { Database } from "@/types/database.types";
 
-const supabase = async () => {
+const supabaseServerClient = async () => {
 	const cookieStore = await cookies();
 
 	return createServerClient<Database>(
 		process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-		process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
+		process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ?? "",
 		{
 			cookies: {
-				getAll() {
+				getAll: () => {
 					return cookieStore.getAll();
 				},
-				setAll(cookiesToSet) {
+				setAll: (cookiesToSet) => {
 					try {
 						cookiesToSet.forEach(({ name, value, options }) => {
 							cookieStore.set(name, value, options);
@@ -29,4 +31,4 @@ const supabase = async () => {
 	);
 };
 
-export default await supabase();
+export default supabaseServerClient;

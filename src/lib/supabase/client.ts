@@ -1,9 +1,19 @@
 import { createBrowserClient } from "@supabase/ssr";
-import type { Database } from "@/src/database.types";
+import type { Database } from "@/types/database.types";
+import supabaseServerClient from "./server";
 
-const supabase = createBrowserClient<Database>(
-	process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
-	process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
-);
+// 호출된 환경에 따라 다른 client를 사용
+// server : supabaseServerClient
+// browser : createBrowserClient
+const supabaseClient = () => {
+	if (typeof window === "undefined") {
+		return supabaseServerClient();
+	}
 
-export default supabase;
+	return createBrowserClient<Database>(
+		process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
+		process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ?? "",
+	);
+};
+
+export default supabaseClient;

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 import type React from "react";
 import "./globals.css";
-import PostHeader from "@/components/layout/header/post-header";
+import GlobalHeader from "@/components/layout/header/global-header";
 import PortalProvider from "@/provider/portal-provider";
 import RTKProvider from "@/provider/rtk-provider";
 
@@ -21,8 +21,9 @@ const RootLayout = ({
 		<html lang="ko">
 			<body className={`font-sans antialiased`}>
 				<RTKProvider>
-					<PostHeader />
-					<div className="min-h-screen bg-background">{children}</div>
+					{/* <GlobalHeader /> */}
+					{children}
+					<div id="modal-root" />
 					<PortalProvider />
 				</RTKProvider>
 				<Analytics />

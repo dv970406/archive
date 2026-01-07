@@ -1,7 +1,7 @@
 import Link from "next/link";
 import ThemeToggle from "../../theme-toggle";
 
-const PostHeader = () => {
+const GlobalHeader = () => {
 	return (
 		<header className="border-b border-border/40 bg-card/30 backdrop-blur-sm sticky top-0 z-50">
 			<div className="container mx-auto px-4 max-w-4xl">
@@ -38,4 +38,4 @@ const PostHeader = () => {
 	);
 };
 
-export default PostHeader;
+export default GlobalHeader;

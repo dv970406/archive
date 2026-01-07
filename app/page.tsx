@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import CategoryFilter from "@/components/pages/index/category-filter";
 import { allCategoriesQuery } from "@/hooks/queries/use-all-categories";
-import { getQueryClient } from "@/lib/utils";
+import { getQueryClient } from "@/lib/utils/tanstack-query";
 
 const HomePage = async () => {
 	const queryClient = getQueryClient();

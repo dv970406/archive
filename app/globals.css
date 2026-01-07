@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@import "./utilities.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -122,5 +125,15 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+	}
+
+	/* 
+	 * tailwind v4에서는 button에 cursor: pointer가 아닌 default로 바뀌었음. 
+	 * 이를 다시 pointer로 바꾸기 위함 
+	 * https://tailwindcss.com/docs/upgrade-guide#buttons-use-the-default-cursor
+	 */
+	button:not(:disabled),
+	[role="button"]:not(:disabled) {
+		cursor: pointer;
 	}
 }

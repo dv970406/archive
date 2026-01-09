@@ -1,6 +1,6 @@
 "use client";
 
-import { useAllCategories } from "@/hooks/queries/use-all-categories";
+import { useAllCategories } from "@/hooks/queries/category";
 
 const CategoryFilter = () => {
 	const { data: allCategories } = useAllCategories();

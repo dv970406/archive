@@ -12,7 +12,7 @@ export const fetchAllCategories = cache(async () => {
 	const { data, error } = await supabase
 		.from("category")
 		.select("*")
-		.order("created_at");
+		.order("order");
 
 	if (error) throw error;
 

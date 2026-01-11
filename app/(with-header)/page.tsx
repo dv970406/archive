@@ -1,12 +1,12 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import CategoryFilter from "@/components/pages/index/category-filter";
-import { allCategoriesQuery } from "@/hooks/queries/use-all-categories";
+import { getAllCategoriesQuery } from "@/hooks/queries/category";
 import { getQueryClient } from "@/lib/utils/tanstack-query";
 
 const HomePage = async () => {
 	const queryClient = getQueryClient();
 
-	await Promise.all([queryClient.prefetchQuery(allCategoriesQuery)]);
+	await Promise.all([queryClient.prefetchQuery(getAllCategoriesQuery)]);
 
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>

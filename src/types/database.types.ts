@@ -37,28 +37,34 @@ export type Database = {
 			};
 			post: {
 				Row: {
-					category_id: number;
+					category_id: number | null;
 					content: string;
 					created_at: string;
 					id: number;
+					published_at: string | null;
+					status: string;
 					thumbnail: string | null;
 					title: string;
 					view_count: number;
 				};
 				Insert: {
-					category_id: number;
+					category_id?: number | null;
 					content: string;
 					created_at?: string;
 					id?: number;
+					published_at?: string | null;
+					status?: string;
 					thumbnail?: string | null;
 					title: string;
 					view_count?: number;
 				};
 				Update: {
-					category_id?: number;
+					category_id?: number | null;
 					content?: string;
 					created_at?: string;
 					id?: number;
+					published_at?: string | null;
+					status?: string;
 					thumbnail?: string | null;
 					title?: string;
 					view_count?: number;

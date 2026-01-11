@@ -15,11 +15,27 @@ export const fetchPost = cache(async (postId: number) => {
 	return data;
 });
 
-type ICreatePostProps = Pick<PostEntity, "content" | "title" | "category_id">;
+export const fetchSavedPostDraft = async () => {
+	const supabase = await supabaseClient();
+	const { data, error } = await supabase
+		.from("post")
+		.select("*, category: category!category_id (*)")
+		.eq("status", "DRAFT")
+		.single();
+
+	if (error) throw error;
+	return data;
+};
+
+type ICreatePostProps = Pick<
+	PostEntity,
+	"content" | "title" | "category_id" | "thumbnail"
+>;
 export const createPost = async ({
 	category_id,
 	content,
 	title,
+	thumbnail,
 }: ICreatePostProps) => {
 	const supabase = await supabaseClient();
 	const { data, error } = await supabase
@@ -28,6 +44,8 @@ export const createPost = async ({
 			content,
 			category_id,
 			title,
+			thumbnail,
+			status: "DRAFT",
 		})
 		.select()
 		.single();
@@ -38,7 +56,15 @@ export const createPost = async ({
 };
 
 interface IUpdatePostProps
-	extends Pick<PostEntity, "content" | "title" | "category_id"> {
+	extends Pick<
+		PostEntity,
+		| "content"
+		| "title"
+		| "category_id"
+		| "thumbnail"
+		| "status"
+		| "published_at"
+	> {
 	id: number;
 }
 export const updatePost = async ({ id, ...rest }: IUpdatePostProps) => {

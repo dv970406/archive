@@ -22,7 +22,7 @@ const AlertModal = () => {
 		store.actions.close();
 	};
 	return (
-		<Dialog open={store.isOpen}>
+		<Dialog open={store.isOpen} onOpenChange={handleCancelClick}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>{store.title}</DialogTitle>

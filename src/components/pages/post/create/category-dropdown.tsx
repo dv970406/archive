@@ -7,11 +7,11 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAllCategories } from "@/hooks/queries/category";
-import type { CategoryEntity } from "@/types/post";
+import type { Post } from "@/types/post";
 
 interface ICategoryDropdown {
-	selectedCategory: CategoryEntity | null;
-	onClick: (category: CategoryEntity) => MouseEventHandler<HTMLButtonElement>;
+	selectedCategory: Post["category"] | null;
+	onClick: (category: Post["category"]) => MouseEventHandler<HTMLButtonElement>;
 }
 const CategoryDropdown = ({ onClick, selectedCategory }: ICategoryDropdown) => {
 	const { data: allCategories } = useAllCategories();

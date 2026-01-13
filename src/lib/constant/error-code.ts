@@ -1,0 +1,3 @@
+export const SUPABASE_ERROR_CODE = {
+	NOT_FOUND: "PGRST116",
+};

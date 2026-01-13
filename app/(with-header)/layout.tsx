@@ -1,17 +1,17 @@
 import type { ReactNode } from "react";
 import GlobalHeader from "@/components/layout/header/global-header";
 
-interface IPostWithHeaderLayoutProps {
-	children: ReactNode;
+interface IWithHeaderLayoutProps {
+  children: ReactNode;
 }
 
-const PostWithHeaderLayout = ({ children }: IPostWithHeaderLayoutProps) => {
-	return (
-		<>
-			<GlobalHeader />
-			{children}
-		</>
-	);
+const WithHeaderLayout = ({ children }: IWithHeaderLayoutProps) => {
+  return (
+    <>
+      <GlobalHeader />
+      <main className="container mx-auto px-4 py-12 max-w-4xl">{children}</main>
+    </>
+  );
 };
 
-export default PostWithHeaderLayout;
+export default WithHeaderLayout;

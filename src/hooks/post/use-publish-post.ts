@@ -1,8 +1,8 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-
 import { toast } from "sonner";
+import { QUERY_KEYS } from "@/lib/query-keys";
 import { usePostDraft } from "@/store/post/use-post-draft";
-
 import { useUpdatePostMutation } from "../mutations/post";
 
 export const usePublishPost = () => {
@@ -12,9 +12,10 @@ export const usePublishPost = () => {
 	const { mutate: updatePost, isPending: isPublishPostPending } =
 		useUpdatePostMutation();
 
-	const handlePublishPost = async () => {
-		if (!id) return;
+	const queryClient = useQueryClient();
 
+	const handlePublishPost = () => {
+		if (!id) return;
 		if (!category) {
 			toast.error("카테고리를 선택해주세요.", {
 				position: "top-center",
@@ -44,6 +45,10 @@ export const usePublishPost = () => {
 					toast.success("포스트 발행에 성공했습니다", {
 						position: "top-center",
 					});
+					queryClient.resetQueries({
+						queryKey: QUERY_KEYS.post.list(category.id),
+					});
+
 					replace("/");
 				},
 				onError: () => {

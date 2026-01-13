@@ -1,24 +1,32 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
-import supabaseClient from "@/lib/supabase/client";
+import { toast } from "sonner";
+import { useSignInWithPasswordMutation } from "@/hooks/mutations/auth";
 
 const SignInRoot = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
+	const { mutate: signInWithPassword } = useSignInWithPasswordMutation();
 	const handleLogin = async (event: FormEvent) => {
 		event.preventDefault();
 
-		const supabase = await supabaseClient();
-		const { error } = await supabase.auth.signInWithPassword({
-			email,
-			password,
-		});
-
-		if (error) throw error;
-
-		location.replace("/");
+		signInWithPassword(
+			{ email, password },
+			{
+				onSuccess: ({ user }) => {
+					if (user.id) {
+						location.replace("/");
+					}
+				},
+				onError: () => {
+					toast.error("로그인에 실패했습니다.", {
+						position: "top-center",
+					});
+				},
+			},
+		);
 	};
 
 	return (

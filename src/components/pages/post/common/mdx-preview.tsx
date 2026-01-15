@@ -19,7 +19,7 @@ const MdxPreview = () => {
 				source: content,
 			});
 			setMdxSource(result);
-		}, 2000); // 2000ms 디바운스
+		}, 1000); // 1000ms 디바운스
 
 		return () => clearTimeout(debounce);
 	}, [content]);

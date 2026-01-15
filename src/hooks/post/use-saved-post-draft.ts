@@ -135,7 +135,7 @@ export const useSavedPostDraft = () => {
 				status: "DRAFT",
 				published_at: null,
 			});
-		}, 2000); // 2000ms 디바운스
+		}, 1000); // 1000ms 디바운스
 
 		return () => clearTimeout(debounce);
 	}, [postDraft, updatePost]);

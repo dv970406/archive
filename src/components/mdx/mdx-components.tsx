@@ -1,11 +1,7 @@
 import Callout from "./callout";
-import CodeDemo from "./code-demo";
-import ProgressBar from "./progress-bar";
 
 export const mdxComponents = {
 	Callout,
-	CodeDemo,
-	ProgressBar,
 	// h1: ({ children }: { children: ReactNode }) => (
 	// 	<h1 className="text-4xl font-bold mt-8 mb-4 text-foreground text-balance">
 	// 		{children}

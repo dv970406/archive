@@ -93,16 +93,20 @@ export const createPost = async ({
   return data;
 };
 
-type IUpdatePostProps = Pick<
-  PostEntity,
-  | "id"
-  | "content"
-  | "title"
-  | "category_id"
-  | "thumbnail"
-  | "status"
-  | "published_at"
->;
+interface IUpdatePostProps
+  extends Partial<
+    Pick<
+      PostEntity,
+      | "content"
+      | "title"
+      | "category_id"
+      | "thumbnail"
+      | "status"
+      | "published_at"
+    >
+  > {
+  id: PostEntity["id"];
+}
 export const updatePost = async ({ id, ...rest }: IUpdatePostProps) => {
   const supabase = await supabaseClient();
   const { data, error } = await supabase

@@ -48,6 +48,6 @@ const PostUpdateRoot = () => {
     setTitle,
   ]);
 
-  return <PostWriteRoot />;
+  return <PostWriteRoot type="UPDATE" />;
 };
 export default PostUpdateRoot;

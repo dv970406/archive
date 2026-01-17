@@ -102,6 +102,7 @@ interface IUpdatePostProps
       | "category_id"
       | "thumbnail"
       | "status"
+      | "view_count"
       | "published_at"
     >
   > {
@@ -119,4 +120,13 @@ export const updatePost = async ({ id, ...rest }: IUpdatePostProps) => {
   if (error) throw error;
 
   return data;
+};
+
+export const increasePostViewCount = async (postId: number) => {
+  const supabase = await supabaseClient();
+  const { error } = await supabase.rpc("increase_post_view_count", {
+    post_id: postId,
+  });
+
+  if (error) throw error;
 };

@@ -1,6 +1,7 @@
 /** biome-ignore-all lint/suspicious/noConsole: <biome의 console 사용금지 규칙 예외파일> */
+
+import { execSync } from "node:child_process";
 import { existsSync, mkdirSync } from "node:fs";
-import { $ } from "bun";
 
 const env = (k: string, fallback?: string) => {
 	const v = process.env[k] ?? fallback;
@@ -28,36 +29,63 @@ async function ensureDumpDir() {
 // remote supabase 프로젝트와 로컬 supabase 프로젝트 연결
 async function linkRemoteDb() {
 	logStep("1) Remote DB와 연결");
-	await $`supabase link --project-ref ${SUPABASE_PROJECT_ID} `;
+	execSync(`supabase link --project-ref ${SUPABASE_PROJECT_ID}`, {
+		stdio: "inherit",
+		encoding: "utf-8",
+	});
 }
 
 // 연결된 remote supabase 프로젝트에서 local로 schema와 data를 가져옴(덤프 - 외부 파일로 추출)
 async function dumpRemote() {
 	logStep("2) Remote DB의 스키마를 덤프");
-	await $`supabase db dump -f ${schemaTableFile}`;
+	execSync(`supabase db dump -f ${schemaTableFile}`, {
+		stdio: "inherit",
+		encoding: "utf-8",
+	});
 
 	logStep("3) Remote Storage의 스키마를 덤프");
-	await $`supabase db diff --linked --schema storage ${schemaStorageFile}`;
+	execSync(`supabase db diff --linked --schema storage ${schemaStorageFile}`, {
+		stdio: "inherit",
+		encoding: "utf-8",
+	});
 
 	logStep("4) Remote DB의 데이터도 덤프");
-	await $`supabase db dump --data-only --use-copy -f ${dataFile}`;
+	execSync(`supabase db dump --data-only --use-copy -f ${dataFile}`, {
+		stdio: "inherit",
+		encoding: "utf-8",
+	});
 }
 
 // DB를 초기화(reset)해야 새로운 데이터를 넣을 수 있음(덮어쓰기는 불가해서 일부러 reset을 하는 것임)
 // reset을 하려면 start가 필요한데 이미 실행중인 경우에 대비하여 stop 후 start 하여 동작 보장
 async function cleanLocal() {
 	logStep("5) Local DB 시작");
-	await $`supabase stop --project-id archive`;
-	await $`supabase start`;
+	execSync("supabase stop --project-id archive", {
+		stdio: "inherit",
+		encoding: "utf-8",
+	});
+	execSync("supabase start", {
+		stdio: "inherit",
+		encoding: "utf-8",
+	});
 
 	logStep("6) 기존 Local DB 초기화");
-	await $`supabase db reset`;
+	execSync("supabase db reset", {
+		stdio: "inherit",
+		encoding: "utf-8",
+	});
 }
 
 // 덤프된 schema와 data를 로컬 DB에 복원(restore)
 async function restoreLocal() {
 	logStep("7) 초기화된 Local DB에 덤프된 스키마와 데이터 복원");
-	await $`psql -d ${LOCAL_DB_URL} -f ${schemaTableFile} -f ${schemaStorageFile} -f ${dataFile}`;
+	execSync(
+		`psql -d ${LOCAL_DB_URL} -f ${schemaTableFile} -f ${schemaStorageFile} -f ${dataFile}`,
+		{
+			stdio: "inherit",
+			encoding: "utf-8",
+		},
+	);
 }
 
 async function main() {

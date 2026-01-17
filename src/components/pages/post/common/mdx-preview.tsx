@@ -1,15 +1,15 @@
-import { MDXClient } from "next-mdx-remote-client";
-import {
-	type SerializeResult,
-	serialize,
-} from "next-mdx-remote-client/serialize";
+import { type HydrateProps, MDXClient } from "next-mdx-remote-client";
+import { serialize } from "next-mdx-remote-client/serialize";
 import { useEffect, useState } from "react";
 import { mdxComponents } from "@/components/mdx/mdx-components";
 import { usePostDraft } from "@/store/post/use-post-draft";
 
 const MdxPreview = () => {
 	const { content } = usePostDraft();
-	const [mdxSource, setMdxSource] = useState<SerializeResult | null>(null);
+	const [mdxSource, setMdxSource] = useState<Pick<
+		HydrateProps,
+		"compiledSource" | "frontmatter" | "scope"
+	> | null>(null);
 
 	useEffect(() => {
 		if (!content) return;
@@ -18,7 +18,11 @@ const MdxPreview = () => {
 			const result = await serialize({
 				source: content,
 			});
-			setMdxSource(result);
+
+			// compiledSource가 있는 경우에만 state 업데이트
+			if ("compiledSource" in result) {
+				setMdxSource(result);
+			}
 		}, 1000); // 1000ms 디바운스
 
 		return () => clearTimeout(debounce);

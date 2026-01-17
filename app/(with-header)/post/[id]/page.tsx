@@ -9,52 +9,56 @@ import { getPostByIdQuery } from "@/hooks/queries/post";
 import { getQueryClient } from "@/lib/utils/tanstack-query";
 
 interface IPostDetailPage {
-  params: Promise<{ id: string }>;
+	params: Promise<{ id: string }>;
 }
 const PostPage = async ({ params }: IPostDetailPage) => {
-  const { id } = await params;
-  const queryClient = getQueryClient();
+	const { id } = await params;
+	const queryClient = getQueryClient();
 
-  const parsedPostId = Number.parseInt(id);
+	const parsedPostId = Number.parseInt(id);
 
-  // 헤더, 바디 컴포넌트를 서버 컴포넌트로만 구현하기 위해 useQuery를 사용하지 않음
-  const {
-    category,
-    title,
-    content,
-    created_at,
-    view_count,
-    published_at,
-    thumbnail,
-  } = await queryClient.fetchQuery(getPostByIdQuery(parsedPostId));
+	// 헤더, 바디 컴포넌트를 서버 컴포넌트로만 구현하기 위해 useQuery를 사용하지 않음
+	const postData = await queryClient.fetchQuery(getPostByIdQuery(parsedPostId));
 
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <main className="mx-auto py-12 max-w-3xl">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 w-fit"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>목록으로</span>
-        </Link>
+	if (!postData) return null;
 
-        <PostDetailHeader
-          category={category}
-          title={title}
-          view_count={view_count}
-          created_at={created_at}
-          published_at={published_at}
-          thumbnail={thumbnail}
-        />
+	const {
+		category,
+		title,
+		content,
+		created_at,
+		view_count,
+		published_at,
+		thumbnail,
+	} = postData;
 
-        <PostDetailBody content={content} />
+	return (
+		<HydrationBoundary state={dehydrate(queryClient)}>
+			<main className="mx-auto py-12 max-w-3xl">
+				<Link
+					href="/"
+					className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 w-fit"
+				>
+					<ArrowLeft className="w-4 h-4" />
+					<span>목록으로</span>
+				</Link>
 
-        <Giscus />
-      </main>
-      <ViewTracker id={parsedPostId} />
-    </HydrationBoundary>
-  );
+				<PostDetailHeader
+					category={category}
+					title={title}
+					view_count={view_count}
+					created_at={created_at}
+					published_at={published_at}
+					thumbnail={thumbnail}
+				/>
+
+				<PostDetailBody content={content} />
+
+				<Giscus />
+			</main>
+			<ViewTracker id={parsedPostId} />
+		</HydrationBoundary>
+	);
 };
 
 export default PostPage;

@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 
 import type React from "react";
 import "./globals.css";
+
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import PortalProvider from "@/provider/portal-provider";
@@ -31,6 +33,7 @@ const RootLayout = ({
 				</RTKProvider>
 				<Toaster />
 				<Analytics />
+				<SpeedInsights />
 			</body>
 		</html>
 	);

@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /post/create
+Disallow: /post/*/update
+Disallow: /sign-in
+
+Sitemap: https://www.choiseongjun.com/sitemap.xml

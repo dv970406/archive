@@ -20,7 +20,7 @@ const PostsList = () => {
 								{/* Thumbnail Image */}
 								<div className="relative aspect-video w-full overflow-hidden bg-muted">
 									<Image
-										src={post.thumbnail || "/placeholder.svg"}
+										src={post.thumbnail || "/placeholder-thumbnail.webp"}
 										alt={post.title}
 										fill
 										className="object-cover group-hover:scale-105 transition-transform duration-300"

@@ -39,7 +39,7 @@ const PostDetailHeader = ({
 
 			<div className="relative w-full aspect-video md:aspect-21/9 overflow-hidden rounded-lg bg-muted mb-6">
 				<Image
-					src={thumbnail || "/placeholder.svg"}
+					src={thumbnail || "/placeholder-thumbnail.webp"}
 					alt={title}
 					fill
 					className="object-cover"

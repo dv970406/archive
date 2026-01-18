@@ -9,8 +9,8 @@ import PortalProvider from "@/provider/portal-provider";
 import RTKProvider from "@/provider/rtk-provider";
 
 export const metadata: Metadata = {
-	title: "아카이브",
-	description: "최성준의 아카이브",
+	title: "최성준 아카이브",
+	description: "프론트엔드 엔지니어 최성준의 A to Z",
 };
 
 const RootLayout = ({

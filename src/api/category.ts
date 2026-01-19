@@ -18,3 +18,16 @@ export const fetchAllCategories = cache(async () => {
 
 	return data;
 });
+
+export const fetchCategoryByPathname = cache(async (pathname: string) => {
+	const supabase = await supabaseClient();
+	const { data, error } = await supabase
+		.from("category")
+		.select("*")
+		.eq("pathname", pathname)
+		.single();
+
+	if (error) throw error;
+
+	return data;
+});

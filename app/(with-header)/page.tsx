@@ -1,26 +1,20 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+
 import CategoryFilter from "@/components/pages/index/category-filter";
 import PostsList from "@/components/pages/index/posts-list";
 import { getAllCategoriesQuery } from "@/hooks/queries/category";
 import { getInfinitePostsQuery } from "@/hooks/queries/post";
 import { getQueryClient } from "@/lib/utils/tanstack-query";
 
-const HomePage = async ({
-	searchParams,
-}: {
-	searchParams: { categoryId?: string };
-}) => {
-	const { categoryId } = await searchParams;
+// 피드 페이지는 ISR로 1분간 캐싱 처리
+export const revalidate = 60;
 
+const FeedPage = async () => {
 	const queryClient = getQueryClient();
 
 	await Promise.all([
 		queryClient.prefetchQuery(getAllCategoriesQuery),
-		queryClient.prefetchInfiniteQuery(
-			getInfinitePostsQuery(
-				categoryId ? Number.parseInt(categoryId) : undefined,
-			),
-		),
+		queryClient.prefetchInfiniteQuery(getInfinitePostsQuery()),
 	]);
 
 	return (
@@ -31,4 +25,4 @@ const HomePage = async ({
 	);
 };
 
-export default HomePage;
+export default FeedPage;

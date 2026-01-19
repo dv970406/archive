@@ -8,7 +8,7 @@
 		"start": "next start",
 		"biome": "biome check --write",
 		"supabase:type-gen": "npx supabase gen types typescript --project-id \"bbhxrgdpczrdtqfqyyzb\" --schema public > src/types/database.types.ts",
-		"supabase:db-sync": "bun --env-file=.env.development run scripts/remote-to-local-db.ts"
+		"supabase:db-sync": "bun run scripts/remote-to-local-db.ts"
 	},
 	"dependencies": {
 		"@radix-ui/react-dialog": "^1.1.15",

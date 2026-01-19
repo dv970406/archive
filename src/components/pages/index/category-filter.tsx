@@ -11,11 +11,7 @@ const CategoryFilter = () => {
 			{allCategories?.map((category) => (
 				<li key={category.id}>
 					<Link
-						href={{
-							query: {
-								categoryId: category.id.toString(),
-							},
-						}}
+						href={`/category/${category.pathname}`}
 						className="px-3 py-1 text-xs font-semibold bg-primary text-primary-foreground rounded-md"
 					>
 						{category.title}

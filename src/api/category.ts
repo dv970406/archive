@@ -8,26 +8,24 @@ import supabaseClient from "@/lib/supabase/client";
 // 물론 이 요청 함수는 tanstack-query의 쿼리함수로 쓰일거라 cache함수를 꼭 쓰지 않아도 되긴 함
 // 서버측에서 prefetch되고 tanstack-query의 cache에 저장된 후에 사용될 것이기 때문
 export const fetchAllCategories = cache(async () => {
-	const supabase = await supabaseClient();
-	const { data, error } = await supabase
-		.from("category")
-		.select("*")
-		.order("order");
+  const { data, error } = await supabaseClient
+    .from("category")
+    .select("*")
+    .order("order");
 
-	if (error) throw error;
+  if (error) throw error;
 
-	return data;
+  return data;
 });
 
 export const fetchCategoryByPathname = cache(async (pathname: string) => {
-	const supabase = await supabaseClient();
-	const { data, error } = await supabase
-		.from("category")
-		.select("*")
-		.eq("pathname", pathname)
-		.single();
+  const { data, error } = await supabaseClient
+    .from("category")
+    .select("*")
+    .eq("pathname", pathname)
+    .single();
 
-	if (error) throw error;
+  if (error) throw error;
 
-	return data;
+  return data;
 });

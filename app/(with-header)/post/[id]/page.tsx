@@ -1,6 +1,7 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import Giscus from "@/components/pages/post/detail/giscus";
 import PostDetailBody from "@/components/pages/post/detail/post-detail-body";
 import PostDetailHeader from "@/components/pages/post/detail/post-detail-header";
@@ -20,7 +21,9 @@ const PostPage = async ({ params }: IPostDetailPage) => {
 	// 헤더, 바디 컴포넌트를 서버 컴포넌트로만 구현하기 위해 useQuery를 사용하지 않음
 	const postData = await queryClient.fetchQuery(getPostByIdQuery(parsedPostId));
 
-	if (!postData) return null;
+	if (!postData) {
+		notFound();
+	}
 
 	const {
 		category,

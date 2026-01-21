@@ -6,8 +6,8 @@ import { getAllCategoriesQuery } from "@/hooks/queries/category";
 import { getInfinitePostsQuery } from "@/hooks/queries/post";
 import { getQueryClient } from "@/lib/utils/tanstack-query";
 
-// 피드 페이지는 ISR로 1분간 캐싱 처리
-export const revalidate = 60;
+// 피드 페이지는 ISR로 5분간 캐싱 처리
+export const revalidate = 300;
 
 const FeedPage = async () => {
 	const queryClient = getQueryClient();

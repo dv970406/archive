@@ -9,8 +9,8 @@ import {
 import { getInfinitePostsQuery } from "@/hooks/queries/post";
 import { getQueryClient } from "@/lib/utils/tanstack-query";
 
-// 피드 페이지는 ISR로 1분간 캐싱 처리
-export const revalidate = 60;
+// 피드 페이지는 ISR로 5분간 캐싱 처리
+export const revalidate = 300;
 
 export async function generateStaticParams() {
   const categories = await fetchAllCategories();
@@ -29,7 +29,7 @@ const FilteredFeedFage = async ({
   const queryClient = getQueryClient();
 
   const category = await queryClient.fetchQuery(
-    getCategoryByPathnameQuery(slug)
+    getCategoryByPathnameQuery(slug),
   );
 
   if (!category) return;

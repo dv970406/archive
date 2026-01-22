@@ -14,7 +14,7 @@ const PostsList = () => {
     <ul className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
       {postsList?.map((post) => (
         <li key={post.id}>
-          <Link href={`/post/${post.id}`}>
+          <Link href={`/post/${post.slug}`}>
             <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer border-border/40 h-full group">
               <article className="h-full flex flex-col">
                 {/* Thumbnail Image */}

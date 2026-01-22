@@ -2,11 +2,12 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useGetPostById } from "@/hooks/queries/post";
+import { useGetPostBySlug } from "@/hooks/queries/post";
 import {
   useSetCategory,
   useSetContent,
   useSetPostId,
+  useSetSlug,
   useSetThumbnail,
   useSetTitle,
 } from "@/store/post/use-post-draft";
@@ -19,16 +20,18 @@ const PostUpdateRoot = () => {
   const setContent = useSetContent();
   const setCategory = useSetCategory();
   const setThumbnail = useSetThumbnail();
+  const setSlug = useSetSlug();
 
-  const { id } = useParams();
-  const postId = parseInt(id as string) as number;
-  const { data: post, isPending: isPostPending } = useGetPostById(postId);
+  const { slug } = useParams();
+  const { data: post, isPending: isPostPending } = useGetPostBySlug(
+    slug as string,
+  );
   const { replace } = useRouter();
 
   useEffect(() => {
     if (isPostPending) return;
     if (!post) {
-      replace(`/post/${id}`);
+      replace(`/post/${slug}`);
       return;
     }
     setPostId(post.id);
@@ -36,8 +39,9 @@ const PostUpdateRoot = () => {
     setContent(post.content);
     setCategory(post.category);
     setThumbnail(post.thumbnail);
+    setSlug(post.slug);
   }, [
-    id,
+    slug,
     isPostPending,
     post,
     replace,
@@ -46,6 +50,7 @@ const PostUpdateRoot = () => {
     setPostId,
     setThumbnail,
     setTitle,
+    setSlug,
   ]);
 
   return <PostWriteRoot type="UPDATE" />;

@@ -4,10 +4,10 @@ import { SUPABASE_ERROR_CODE } from "@/lib/constant/error-code";
 import supabaseClient from "@/lib/supabase/client";
 import type { PostEntity } from "@/types/post";
 
-export const fetchAllPostsForSitemap = cache(async () => {
+export const fetchAllPostsForUtils = cache(async () => {
   const { error, data } = await supabaseClient
     .from("post")
-    .select("id, updated_at")
+    .select("slug, updated_at")
     .eq("status", "PUBLISHED");
 
   if (error) throw error;
@@ -41,10 +41,10 @@ export const fetchPosts = cache(
 
     if (error) throw error;
     return data;
-  }
+  },
 );
 
-export const fetchPost = cache(async (postId: number) => {
+export const fetchPostById = cache(async (postId: number) => {
   const { data, error } = await supabaseClient
     .from("post")
     .select("*, category: category!category_id (*)")
@@ -54,7 +54,22 @@ export const fetchPost = cache(async (postId: number) => {
   if (error) {
     if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
       notFound();
-      return;
+    }
+    throw error;
+  }
+  return data;
+});
+
+export const fetchPostBySlug = cache(async (slug: string) => {
+  const { data, error } = await supabaseClient
+    .from("post")
+    .select("*, category: category!category_id (*)")
+    .eq("slug", slug)
+    .single();
+
+  if (error) {
+    if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
+      notFound();
     }
     throw error;
   }
@@ -74,13 +89,14 @@ export const fetchSavedPostDraft = async () => {
 
 type ICreatePostProps = Pick<
   PostEntity,
-  "content" | "title" | "category_id" | "thumbnail"
+  "content" | "title" | "category_id" | "thumbnail" | "slug"
 >;
 export const createPost = async ({
   category_id,
   content,
   title,
   thumbnail,
+  slug,
 }: ICreatePostProps) => {
   const { data, error } = await supabaseClient
     .from("post")
@@ -90,6 +106,7 @@ export const createPost = async ({
       title,
       thumbnail,
       status: "DRAFT",
+      slug,
     })
     .select()
     .single();
@@ -99,20 +116,20 @@ export const createPost = async ({
   return data;
 };
 
-interface IUpdatePostProps
-  extends Partial<
-    Pick<
-      PostEntity,
-      | "content"
-      | "title"
-      | "category_id"
-      | "thumbnail"
-      | "status"
-      | "view_count"
-      | "published_at"
-      | "updated_at"
-    >
-  > {
+interface IUpdatePostProps extends Partial<
+  Pick<
+    PostEntity,
+    | "content"
+    | "title"
+    | "category_id"
+    | "thumbnail"
+    | "status"
+    | "view_count"
+    | "published_at"
+    | "updated_at"
+    | "slug"
+  >
+> {
   id: PostEntity["id"];
 }
 export const updatePost = async ({ id, ...rest }: IUpdatePostProps) => {

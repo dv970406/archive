@@ -5,28 +5,28 @@ import { fetchAllPostsForUtils } from "@/api/post";
 export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await fetchAllPostsForUtils();
+	const posts = await fetchAllPostsForUtils();
 
-  const PRODUCTION_URL = process.env.NEXT_PUBLIC_PRODUCTION_URL ?? "";
-  const postsArray = posts.map((post) => ({
-    url: `${PRODUCTION_URL}/post/${post.slug}`,
-    lastModified: post.updated_at,
-  }));
+	const PRODUCTION_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+	const postsArray = posts.map((post) => ({
+		url: `${PRODUCTION_URL}/post/${post.slug}`,
+		lastModified: post.updated_at,
+	}));
 
-  const availableUrlsArray: MetadataRoute.Sitemap = [
-    // 피드 페이지
-    {
-      url: PRODUCTION_URL,
-    },
+	const availableUrlsArray: MetadataRoute.Sitemap = [
+		// 피드 페이지
+		{
+			url: PRODUCTION_URL,
+		},
 
-    // 경력 페이지
-    {
-      url: `${PRODUCTION_URL}/career`,
-    },
+		// 경력 페이지
+		{
+			url: `${PRODUCTION_URL}/career`,
+		},
 
-    // 모든 게시글 상세 페이지
-    ...postsArray,
-  ];
+		// 모든 게시글 상세 페이지
+		...postsArray,
+	];
 
-  return availableUrlsArray;
+	return availableUrlsArray;
 }

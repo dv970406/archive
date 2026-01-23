@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { PLACEHOLDER_THUMBNAIL_URL } from "@/lib/constant/image";
 import { formatTimeAgo } from "@/lib/utils/time";
 import type { Post } from "@/types/post";
 
@@ -39,7 +40,7 @@ const PostDetailHeader = ({
 
 			<div className="relative w-full aspect-video md:aspect-21/9 overflow-hidden rounded-lg bg-muted mb-6">
 				<Image
-					src={thumbnail || "/placeholder-thumbnail.webp"}
+					src={thumbnail || PLACEHOLDER_THUMBNAIL_URL}
 					alt={title}
 					fill
 					className="object-cover"

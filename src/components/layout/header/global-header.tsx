@@ -13,28 +13,33 @@ const GlobalHeader = async () => {
 							</span>
 						</div>
 						<span className="text-xl font-semibold text-foreground">
-							Dev Post
+							Archive
 						</span>
 					</Link>
 
 					<nav className="flex items-center gap-6">
-						<Link
-							href="/"
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							글 목록
-						</Link>
-						<Link
-							href="/career"
-							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-						>
-							커리어
-						</Link>
+						<NavigationLink href="/" text="글 목록" />
+						<NavigationLink href="/career" text="커리어" />
 						<ThemeToggle />
 					</nav>
 				</div>
 			</div>
 		</header>
+	);
+};
+
+interface INavigationLink {
+	href: string;
+	text: string;
+}
+const NavigationLink = ({ href, text }: INavigationLink) => {
+	return (
+		<Link
+			href={href}
+			className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+		>
+			{text}
+		</Link>
 	);
 };
 

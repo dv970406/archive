@@ -45,7 +45,6 @@ const PostEditor = ({ isPublishPostPending }: IPostEditorProps) => {
 
 				<div className="flex gap-2">
 					<CategoryDropdown />
-
 					<ThumbnailHandler postId={id} />
 				</div>
 			</div>

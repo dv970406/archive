@@ -1,4 +1,3 @@
-import type { MouseEventHandler } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -7,28 +6,29 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAllCategories } from "@/hooks/queries/category";
+import { usePostDraft, useSetCategory } from "@/store/post/use-post-draft";
 import type { Post } from "@/types/post";
 
-interface ICategoryDropdown {
-	selectedCategory: Post["category"] | null;
-	onClick: (category: Post["category"]) => MouseEventHandler<HTMLButtonElement>;
-}
-const CategoryDropdown = ({ onClick, selectedCategory }: ICategoryDropdown) => {
+const CategoryDropdown = () => {
 	const { data: allCategories } = useAllCategories();
+	const setCategory = useSetCategory();
+	const { category } = usePostDraft();
+
+	const handleClickCategory = (category: Post["category"]) => () => {
+		setCategory(category);
+	};
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild className="w-24">
-				<Button variant="outline">
-					{selectedCategory?.title ?? "카테고리 선택"}
-				</Button>
+				<Button variant="outline">{category?.title ?? "카테고리 선택"}</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="w-28" align="start">
 				{allCategories?.map((category) => (
 					<DropdownMenuItem key={category.id} asChild>
 						<button
 							type="button"
-							onClick={onClick(category)}
+							onClick={handleClickCategory(category)}
 							className="w-full"
 						>
 							{category.title}

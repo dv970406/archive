@@ -32,7 +32,13 @@ export async function generateMetadata({
 		openGraph: {
 			title: postData.title ?? "",
 			description: `${postData.title} - written by 최성준`,
-			images: [postData.thumbnail ?? PLACEHOLDER_THUMBNAIL_URL],
+			images: [
+				{
+					url: postData.thumbnail ?? PLACEHOLDER_THUMBNAIL_URL,
+					width: 1200,
+					height: 630,
+				},
+			],
 		},
 	};
 }

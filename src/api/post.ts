@@ -5,150 +5,156 @@ import supabaseClient from "@/lib/supabase/client";
 import type { PostEntity } from "@/types/post";
 
 export const fetchAllPostsForUtils = cache(async () => {
-  const { error, data } = await supabaseClient
-    .from("post")
-    .select("slug, updated_at")
-    .eq("status", "PUBLISHED");
+	const { error, data } = await supabaseClient
+		.from("post")
+		.select("slug, updated_at")
+		.order("updated_at", {
+			ascending: true,
+		})
+		.eq("status", "PUBLISHED");
 
-  if (error) throw error;
-  return data;
+	if (error) throw error;
+	return data;
 });
 
 export const fetchPosts = cache(
-  async ({
-    from,
-    to,
-    categoryId,
-  }: {
-    from: number;
-    to: number;
-    categoryId?: number;
-  }) => {
-    const request = supabaseClient
-      .from("post")
-      .select("*, category: category!category_id (*)")
-      .eq("status", "PUBLISHED")
-      .order("published_at", {
-        ascending: false,
-      })
-      .range(from, to);
+	async ({
+		from,
+		to,
+		categoryId,
+	}: {
+		from: number;
+		to: number;
+		categoryId?: number;
+	}) => {
+		const request = supabaseClient
+			.from("post")
+			.select("*, category: category!category_id (*)")
+			.eq("status", "PUBLISHED")
+			.order("published_at", {
+				ascending: false,
+			})
+			.range(from, to);
 
-    if (categoryId) {
-      request.eq("category_id", categoryId);
-    }
+		if (categoryId) {
+			request.eq("category_id", categoryId);
+		}
 
-    const { data, error } = await request;
+		const { data, error } = await request;
 
-    if (error) throw error;
-    return data;
-  },
+		if (error) throw error;
+		return data;
+	},
 );
 
 export const fetchPostById = cache(async (postId: number) => {
-  const { data, error } = await supabaseClient
-    .from("post")
-    .select("*, category: category!category_id (*)")
-    .eq("id", postId)
-    .single();
+	const { data, error } = await supabaseClient
+		.from("post")
+		.select("*, category: category!category_id (*)")
+		.eq("id", postId)
+		.single();
 
-  if (error) {
-    if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
-      notFound();
-    }
-    throw error;
-  }
-  return data;
+	if (error) {
+		if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
+			notFound();
+		}
+		throw error;
+	}
+	return data;
 });
 
+// 리퀘스트 메모이제이션을 위해 cache 함수로 감싼다.
+// metadata 값을 가져오기 위해 한번 호출, 페이지단에서 렌더링을 위해 한번 호출하여도 리퀘스트 메모이제이션에 의해 실제 요청은 한번만 발생
 export const fetchPostBySlug = cache(async (slug: string) => {
-  const { data, error } = await supabaseClient
-    .from("post")
-    .select("*, category: category!category_id (*)")
-    .eq("slug", slug)
-    .single();
+	const { data, error } = await supabaseClient
+		.from("post")
+		.select("*, category: category!category_id (*)")
+		.eq("slug", slug)
+		.single();
 
-  if (error) {
-    if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
-      notFound();
-    }
-    throw error;
-  }
-  return data;
+	if (error) {
+		if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
+			notFound();
+		}
+		throw error;
+	}
+	return data;
 });
 
 export const fetchSavedPostDraft = async () => {
-  const { data, error } = await supabaseClient
-    .from("post")
-    .select("*, category: category!category_id (*)")
-    .eq("status", "DRAFT")
-    .single();
+	const { data, error } = await supabaseClient
+		.from("post")
+		.select("*, category: category!category_id (*)")
+		.eq("status", "DRAFT")
+		.single();
 
-  if (error) throw error;
-  return data;
+	if (error) throw error;
+	return data;
 };
 
 type ICreatePostProps = Pick<
-  PostEntity,
-  "content" | "title" | "category_id" | "thumbnail" | "slug"
+	PostEntity,
+	"content" | "title" | "category_id" | "thumbnail" | "slug"
 >;
 export const createPost = async ({
-  category_id,
-  content,
-  title,
-  thumbnail,
-  slug,
+	category_id,
+	content,
+	title,
+	thumbnail,
+	slug,
 }: ICreatePostProps) => {
-  const { data, error } = await supabaseClient
-    .from("post")
-    .insert({
-      content,
-      category_id,
-      title,
-      thumbnail,
-      status: "DRAFT",
-      slug,
-    })
-    .select()
-    .single();
+	const { data, error } = await supabaseClient
+		.from("post")
+		.insert({
+			content,
+			category_id,
+			title,
+			thumbnail,
+			status: "DRAFT",
+			slug,
+		})
+		.select()
+		.single();
 
-  if (error) throw error;
+	if (error) throw error;
 
-  return data;
+	return data;
 };
 
-interface IUpdatePostProps extends Partial<
-  Pick<
-    PostEntity,
-    | "content"
-    | "title"
-    | "category_id"
-    | "thumbnail"
-    | "status"
-    | "view_count"
-    | "published_at"
-    | "updated_at"
-    | "slug"
-  >
-> {
-  id: PostEntity["id"];
+interface IUpdatePostProps
+	extends Partial<
+		Pick<
+			PostEntity,
+			| "content"
+			| "title"
+			| "category_id"
+			| "thumbnail"
+			| "status"
+			| "view_count"
+			| "published_at"
+			| "updated_at"
+			| "slug"
+		>
+	> {
+	id: PostEntity["id"];
 }
 export const updatePost = async ({ id, ...rest }: IUpdatePostProps) => {
-  const { data, error } = await supabaseClient
-    .from("post")
-    .update(rest)
-    .eq("id", id)
-    .select()
-    .single();
+	const { data, error } = await supabaseClient
+		.from("post")
+		.update(rest)
+		.eq("id", id)
+		.select()
+		.single();
 
-  if (error) throw error;
+	if (error) throw error;
 
-  return data;
+	return data;
 };
 
 export const increasePostViewCount = async (postId: number) => {
-  const { error } = await supabaseClient.rpc("increase_post_view_count", {
-    post_id: postId,
-  });
+	const { error } = await supabaseClient.rpc("increase_post_view_count", {
+		post_id: postId,
+	});
 
-  if (error) throw error;
+	if (error) throw error;
 };

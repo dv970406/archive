@@ -1,7 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { Children, isValidElement, type ReactNode } from "react";
 import Callout from "./callout";
+
+const MdxImage = ({ src, alt }: { src: string; alt?: string }) => (
+	<figure>
+		<Image
+			src={src || ""}
+			alt={alt || ""}
+			fill
+			className="relative! rounded-lg my-6"
+		/>
+		{alt && <figcaption className="text-center">{alt}</figcaption>}
+	</figure>
+);
 
 export const mdxComponents = {
 	Callout,
@@ -10,17 +22,15 @@ export const mdxComponents = {
 			{children}
 		</Link>
 	),
-	img: ({ src, alt }: { src: string; alt?: string }) => (
-		<figure>
-			<Image
-				src={src || ""}
-				alt={alt || ""}
-				fill
-				className="relative! rounded-lg my-6"
-			/>
-			{alt && <figcaption className="text-center">{alt}</figcaption>}
-		</figure>
-	),
+	p: ({ children }: { children: ReactNode }) => {
+		// <p> 태그 안에 <figcaption> 태그가 들어가는 경우 invalid 에러가 나서 <p>로 감싸지 않는다
+		const hasBlockChild = Children.toArray(children).some(
+			(child) => isValidElement(child) && child.type === MdxImage,
+		);
+		if (hasBlockChild) return <>{children}</>;
+		return <p>{children}</p>;
+	},
+	img: MdxImage,
 	// h1: ({ children }: { children: ReactNode }) => (
 	// 	<h1 className="text-4xl font-bold mt-8 mb-4 text-foreground text-balance">
 	// 		{children}

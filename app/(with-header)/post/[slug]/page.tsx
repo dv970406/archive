@@ -9,7 +9,7 @@ import PostDetailBody from "@/components/pages/post/detail/post-detail-body";
 import PostDetailHeader from "@/components/pages/post/detail/post-detail-header";
 import ViewTracker from "@/components/pages/post/detail/view-tracker";
 import { getPostBySlugQuery } from "@/hooks/queries/post";
-import { PLACEHOLDER_THUMBNAIL_URL } from "@/lib/constant/image";
+import { PLACEHOLDER_THUMBNAIL_PATH } from "@/lib/constant/image";
 import { parseMarkdownToPlainText } from "@/lib/utils/markdown";
 import { getQueryClient } from "@/lib/utils/tanstack-query";
 
@@ -32,7 +32,15 @@ export async function generateMetadata({
 		openGraph: {
 			title: postData.title ?? "",
 			description: `${postData.title} - written by 최성준`,
-			images: [postData.thumbnail ?? PLACEHOLDER_THUMBNAIL_URL],
+			images: [
+				{
+					url:
+						postData.thumbnail ??
+						process.env.NEXT_PUBLIC_SITE_URL + PLACEHOLDER_THUMBNAIL_PATH,
+					width: 1200,
+					height: 630,
+				},
+			],
 		},
 	};
 }

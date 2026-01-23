@@ -16,6 +16,20 @@ export const metadata: Metadata = {
 		default: "최성준 아카이브",
 	},
 	description: "프론트엔드 엔지니어 최성준의 A to Z",
+	openGraph: {
+		title: {
+			template: "%s | 최성준 아카이브",
+			default: "최성준 아카이브",
+		},
+		description: "프론트엔드 엔지니어 최성준의 A to Z",
+		images: [
+			{
+				url: `${process.env.NEXT_PUBLIC_SITE_URL}/og-default-image.webp`,
+				width: 1200,
+				height: 630,
+			},
+		],
+	},
 };
 
 const RootLayout = ({

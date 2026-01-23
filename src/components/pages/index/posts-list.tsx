@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import Loader from "@/components/ui/loader";
 import { usePostsList } from "@/hooks/post/use-posts-list";
-import { PLACEHOLDER_THUMBNAIL_URL } from "@/lib/constant/image";
+import { PLACEHOLDER_THUMBNAIL_PATH } from "@/lib/constant/image";
 import { parseMarkdownToPlainText } from "@/lib/utils/markdown";
 import { formatTimeAgo } from "@/lib/utils/time";
 
@@ -22,7 +22,7 @@ const PostsList = () => {
 								{/* Thumbnail Image */}
 								<div className="relative aspect-video w-full overflow-hidden bg-muted">
 									<Image
-										src={post.thumbnail || PLACEHOLDER_THUMBNAIL_URL}
+										src={post.thumbnail || PLACEHOLDER_THUMBNAIL_PATH}
 										alt={post.title}
 										fill
 										className="object-cover group-hover:scale-105 transition-transform duration-300"

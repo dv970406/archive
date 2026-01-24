@@ -94,7 +94,7 @@ export const fetchSavedPostDraft = async () => {
 
 type ICreatePostProps = Pick<
 	PostEntity,
-	"content" | "title" | "category_id" | "thumbnail" | "slug"
+	"content" | "title" | "category_id" | "thumbnail" | "slug" | "ai_summary"
 >;
 export const createPost = async ({
 	category_id,
@@ -102,6 +102,7 @@ export const createPost = async ({
 	title,
 	thumbnail,
 	slug,
+	ai_summary,
 }: ICreatePostProps) => {
 	const { data, error } = await supabaseClient
 		.from("post")
@@ -112,6 +113,7 @@ export const createPost = async ({
 			thumbnail,
 			status: "DRAFT",
 			slug,
+			ai_summary,
 		})
 		.select()
 		.single();
@@ -134,6 +136,7 @@ interface IUpdatePostProps
 			| "published_at"
 			| "updated_at"
 			| "slug"
+			| "ai_summary"
 		>
 	> {
 	id: PostEntity["id"];

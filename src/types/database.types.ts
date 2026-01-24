@@ -40,6 +40,7 @@ export type Database = {
       }
       post: {
         Row: {
+          ai_summary: string | null
           category_id: number | null
           content: string
           created_at: string
@@ -53,6 +54,7 @@ export type Database = {
           view_count: number
         }
         Insert: {
+          ai_summary?: string | null
           category_id?: number | null
           content: string
           created_at?: string
@@ -66,6 +68,7 @@ export type Database = {
           view_count?: number
         }
         Update: {
+          ai_summary?: string | null
           category_id?: number | null
           content?: string
           created_at?: string

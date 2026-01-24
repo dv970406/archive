@@ -10,9 +10,9 @@ import {
 import CategoryDropdown from "./category-dropdown";
 import ThumbnailHandler from "./thumbnail-handler";
 
-type IPostEditorProps = Pick<IUsePublishPostReturn, "isPublishPostPending">;
+type IPostEditorProps = Pick<IUsePublishPostReturn, "isPending">;
 
-const PostEditor = ({ isPublishPostPending }: IPostEditorProps) => {
+const PostEditor = ({ isPending }: IPostEditorProps) => {
 	const setTitle = useSetTitle();
 	const setContent = useSetContent();
 	const setSlug = useSetSlug();
@@ -50,7 +50,7 @@ const PostEditor = ({ isPublishPostPending }: IPostEditorProps) => {
 			</div>
 
 			<textarea
-				disabled={isPublishPostPending}
+				disabled={isPending}
 				ref={textareaRef}
 				value={content}
 				onChange={(event) => setContent(event.currentTarget.value)}

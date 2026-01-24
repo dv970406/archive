@@ -10,7 +10,7 @@ interface IViewedPost {
 	nextViewCountUpdateAt: number;
 }
 
-interface IViewTracker extends Pick<PostEntity, "id"> {}
+type IViewTracker = Pick<PostEntity, "id">;
 const ViewTracker = ({ id }: IViewTracker) => {
 	const { mutate: increasePostViewCount } = useIncreasePostViewCount();
 	useEffect(() => {
@@ -45,7 +45,7 @@ const ViewTracker = ({ id }: IViewTracker) => {
 				},
 			});
 		}
-	}, [id]);
+	}, [id, increasePostViewCount]);
 
 	return null;
 };

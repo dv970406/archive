@@ -1,24 +1,24 @@
 import supabaseClient from "@/lib/supabase/client";
 
 export const fetchUser = async () => {
-  const { data } = await supabaseClient.auth.getUser();
+	const { data } = await supabaseClient.auth.getUser();
 
-  return data;
+	return data;
 };
 
 export const signInWithPassword = async ({
-  email,
-  password,
+	email,
+	password,
 }: {
-  email: string;
-  password: string;
+	email: string;
+	password: string;
 }) => {
-  const { error, data } = await supabaseClient.auth.signInWithPassword({
-    email,
-    password,
-  });
+	const { error, data } = await supabaseClient.auth.signInWithPassword({
+		email,
+		password,
+	});
 
-  if (error) throw error;
+	if (error) throw error;
 
-  return data;
+	return data;
 };

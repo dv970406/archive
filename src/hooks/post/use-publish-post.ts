@@ -1,8 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
 import { QUERY_KEYS } from "@/lib/query-keys";
 import { usePostDraft } from "@/store/post/use-post-draft";
+import { useGenerateSummarizeMutation } from "../mutations/ai";
 import { useUpdatePostMutation } from "../mutations/post";
 
 export const usePublishPost = ({ type }: { type: "CREATE" | "UPDATE" }) => {
@@ -13,8 +15,12 @@ export const usePublishPost = ({ type }: { type: "CREATE" | "UPDATE" }) => {
 		useUpdatePostMutation();
 
 	const queryClient = useQueryClient();
+	const { mutate: generateSummarize, isPending: isGenerateSummarizePending } =
+		useGenerateSummarizeMutation();
 
-	const handlePublishPost = () => {
+	const isPending = isGenerateSummarizePending || isPublishPostPending;
+
+	const handlePublishPost = async () => {
 		if (!id) return;
 		if (!category) {
 			toast.error("카테고리를 선택해주세요.", {
@@ -34,45 +40,51 @@ export const usePublishPost = ({ type }: { type: "CREATE" | "UPDATE" }) => {
 			});
 			return;
 		}
-		if (isPublishPostPending) return;
+		if (isPending) return;
 
-		const now = new Date().toISOString();
-		updatePost(
-			{
-				id,
-				title,
-				content,
-				category_id: category.id,
-				thumbnail,
-				status: "PUBLISHED",
-				updated_at: now,
-				slug,
-				...(type === "CREATE" && {
-					published_at: now,
-				}),
-			},
-			{
-				onSuccess: () => {
-					toast.success("포스트 발행에 성공했습니다", {
-						position: "top-center",
-					});
-					queryClient.resetQueries({
-						queryKey: QUERY_KEYS.post.list(category.id),
-					});
+		// content를 claude ai가 요약을 한 후에 포스트의 create/update를 진행한다.
+		generateSummarize(content, {
+			onSuccess: (summarizedContent) => {
+				const now = new Date().toISOString();
+				updatePost(
+					{
+						id,
+						title,
+						content,
+						category_id: category.id,
+						thumbnail,
+						status: "PUBLISHED",
+						updated_at: now,
+						slug,
+						ai_summary: summarizedContent,
+						...(type === "CREATE" && {
+							published_at: now,
+						}),
+					},
+					{
+						onSuccess: () => {
+							toast.success("포스트 발행에 성공했습니다", {
+								position: "top-center",
+							});
+							queryClient.resetQueries({
+								queryKey: QUERY_KEYS.post.list(category.id),
+							});
 
-					replace("/");
-				},
-				onError: () => {
-					toast.error("포스트 발행에 실패했습니다", {
-						position: "top-center",
-					});
-				},
+							replace("/");
+						},
+						onError: () => {
+							toast.error("포스트 발행에 실패했습니다", {
+								position: "top-center",
+							});
+						},
+					},
+				);
 			},
-		);
+		});
 	};
 
 	return {
-		isPublishPostPending,
+		isPending,
 		handlePublishPost,
 	};
 };

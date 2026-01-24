@@ -16,7 +16,7 @@ const PostWriteRoot = ({ type }: IPostWriteRoot) => {
 	const { handleActiveTab, isPreviewTab, isSplitTab, isWriteTab } =
 		usePostEditorTabs();
 
-	const { handlePublishPost, isPublishPostPending } = usePublishPost({
+	const { handlePublishPost, isPending } = usePublishPost({
 		type,
 	});
 
@@ -37,7 +37,7 @@ const PostWriteRoot = ({ type }: IPostWriteRoot) => {
 						<Button
 							type="button"
 							onClick={handlePublishPost}
-							disabled={isPublishPostPending}
+							disabled={isPending}
 							className="px-4 py-2"
 						>
 							저장
@@ -53,9 +53,7 @@ const PostWriteRoot = ({ type }: IPostWriteRoot) => {
 				})}
 			>
 				{/* 작성 패널 */}
-				{!isPreviewTab && (
-					<PostEditor isPublishPostPending={isPublishPostPending} />
-				)}
+				{!isPreviewTab && <PostEditor isPending={isPending} />}
 
 				{/* 미리보기 패널 */}
 				{!isWriteTab && <MdxPreview />}

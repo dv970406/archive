@@ -5,7 +5,9 @@ const client = new Anthropic({
 });
 export const generateSummary = async (content: string) => {
 	const summaryResponse = await client.messages.create({
-		max_tokens: 1024,
+		// 한글 3-7줄 요약
+		// 실제 사용: 150-300 토큰 정도이므로 넉넉히 500으로 설정
+		max_tokens: 500, // 여유있게 안전함
 		messages: [
 			{
 				content: `

@@ -14,6 +14,16 @@ export const fetchAllCategories = cache(async () => {
 		.order("order");
 
 	if (error) throw error;
+	return data;
+});
+
+export const fetchAllCategoriesForUtils = cache(async () => {
+	const { data, error } = await supabaseClient
+		.from("category")
+		.select("pathname")
+		.order("order");
+
+	if (error) throw error;
 
 	return data;
 });

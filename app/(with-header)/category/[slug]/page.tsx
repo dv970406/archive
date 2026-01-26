@@ -3,10 +3,7 @@ import type { Metadata } from "next";
 import { fetchAllCategories, fetchCategoryByPathname } from "@/api/category";
 import CategoryFilter from "@/components/pages/index/category-filter";
 import PostsList from "@/components/pages/index/posts-list";
-import {
-	getAllCategoriesQuery,
-	getCategoryByPathnameQuery,
-} from "@/hooks/queries/category";
+import { getCategoryByPathnameQuery } from "@/hooks/queries/category";
 import { getInfinitePostsQuery } from "@/hooks/queries/post";
 import { getQueryClient } from "@/lib/utils/tanstack-query";
 
@@ -54,7 +51,6 @@ const FilteredFeedFage = async ({
 
 	if (!category) return;
 	await Promise.all([
-		queryClient.prefetchQuery(getAllCategoriesQuery),
 		queryClient.prefetchInfiniteQuery(getInfinitePostsQuery(category.id)),
 	]);
 

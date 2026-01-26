@@ -1,10 +1,8 @@
-"use client";
-
 import Link from "next/link";
-import { useAllCategories } from "@/hooks/queries/category";
+import { fetchAllCategories } from "@/api/category";
 
-const CategoryFilter = () => {
-	const { data: allCategories } = useAllCategories();
+const CategoryFilter = async () => {
+	const allCategories = await fetchAllCategories();
 
 	return (
 		<ul className="flex gap-2 flex-wrap mb-8">

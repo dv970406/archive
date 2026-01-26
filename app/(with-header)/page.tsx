@@ -2,7 +2,6 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 import CategoryFilter from "@/components/pages/index/category-filter";
 import PostsList from "@/components/pages/index/posts-list";
-import { getAllCategoriesQuery } from "@/hooks/queries/category";
 import { getInfinitePostsQuery } from "@/hooks/queries/post";
 import { getQueryClient } from "@/lib/utils/tanstack-query";
 
@@ -13,7 +12,6 @@ const FeedPage = async () => {
 	const queryClient = getQueryClient();
 
 	await Promise.all([
-		queryClient.prefetchQuery(getAllCategoriesQuery),
 		queryClient.prefetchInfiniteQuery(getInfinitePostsQuery()),
 	]);
 

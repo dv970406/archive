@@ -10,7 +10,6 @@ import PostDetailHeader from "@/components/pages/post/detail/post-detail-header"
 import ViewTracker from "@/components/pages/post/detail/view-tracker";
 import { getPostBySlugQuery } from "@/hooks/queries/post";
 import { PLACEHOLDER_THUMBNAIL_PATH } from "@/lib/constant/image";
-import { parseMarkdownToPlainText } from "@/lib/utils/markdown";
 import { getQueryClient } from "@/lib/utils/tanstack-query";
 
 // 포스트 상세 페이지는 ISR로 5분간 캐싱 처리
@@ -28,10 +27,11 @@ export async function generateMetadata({
 
 	return {
 		title: postData.title ?? "",
-		description: parseMarkdownToPlainText(postData.content),
+		description: postData.ai_summary || `${postData.title} - written by 최성준`,
 		openGraph: {
 			title: postData.title ?? "",
-			description: `${postData.title} - written by 최성준`,
+			description:
+				postData.ai_summary || `${postData.title} - written by 최성준`,
 			images: [
 				{
 					url:

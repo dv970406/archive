@@ -20,19 +20,29 @@ export const useImageUploader = ({
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 	const { mutate: uploadImage } = useUploadImageMutation();
 
-	// textarea 최하단에 텍스트 삽입
-	const insertTextAtEnd = (text: string) => {
+	// 현재 커서 위치에 텍스트 삽입
+	const insertTextAtCursor = (text: string) => {
 		const textarea = textareaRef.current;
 		if (!textarea) return;
 
-		// content가 비어있지 않고 마지막 문자가 개행이 아니면 개행 추가
-		const needsNewline = content.length > 0 && !content.endsWith("\n");
-		const newContent = content + (needsNewline ? "\n" : "") + text;
+		const { selectionStart, selectionEnd } = textarea;
+
+		// 커서 위치 전/후로 content string을 분할한다.
+		const before = content.slice(0, selectionStart);
+		const after = content.slice(selectionEnd);
+
+		// 개행을 해야하는지 체크
+		const needsNewline = before.length > 0 && !before.endsWith("\n");
+		const inserted = (needsNewline ? "\n" : "") + text;
+
+		// 커서 위치에 새로운 content를 넣는다.
+		const newContent = before + inserted + after;
 		setContent(newContent);
 
 		// 커서 위치를 삽입된 텍스트 뒤로 이동
+		const newCursorPos = selectionStart + inserted.length;
 		setTimeout(() => {
-			textarea.selectionStart = textarea.selectionEnd = newContent.length;
+			textarea.selectionStart = textarea.selectionEnd = newCursorPos;
 			textarea.focus();
 		}, 0);
 	};
@@ -59,8 +69,8 @@ export const useImageUploader = ({
 				{
 					onSuccess: (receivedData) => {
 						// textarea 최하단에 이미지를 마크다운 문법으로 추가
-						const imageMarkdown = `![${imageFile.name}](${receivedData})\n`;
-						insertTextAtEnd(imageMarkdown);
+						const imageMarkdown = `![](${receivedData})\n`;
+						insertTextAtCursor(imageMarkdown);
 					},
 					onError: (error) => {
 						toast.error(`업로드 실패: ${error.message}`, {

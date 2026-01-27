@@ -17,7 +17,7 @@ const FeedPage = async () => {
 
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>
-			<CategoryFilter />
+			{/* <CategoryFilter /> */}
 			<PostsList />
 		</HydrationBoundary>
 	);

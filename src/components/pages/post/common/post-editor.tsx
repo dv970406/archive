@@ -7,7 +7,7 @@ import {
 	useSetSlug,
 	useSetTitle,
 } from "@/store/post/use-post-draft";
-import CategoryDropdown from "./category-dropdown";
+// import CategoryDropdown from "./category-dropdown";
 import ThumbnailHandler from "./thumbnail-handler";
 
 type IPostEditorProps = Pick<IUsePublishPostReturn, "isPending">;
@@ -44,7 +44,7 @@ const PostEditor = ({ isPending }: IPostEditorProps) => {
 				</div>
 
 				<div className="flex gap-2">
-					<CategoryDropdown />
+					{/* <CategoryDropdown /> */}
 					<ThumbnailHandler postId={id} />
 				</div>
 			</div>

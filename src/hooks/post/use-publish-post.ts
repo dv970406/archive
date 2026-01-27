@@ -70,7 +70,11 @@ export const usePublishPost = ({ type }: { type: "CREATE" | "UPDATE" }) => {
 								queryKey: QUERY_KEYS.post.list(category.id),
 							});
 
-							replace("/");
+							if (type === "UPDATE") {
+								replace(`/post/${slug}`);
+							} else {
+								replace("/");
+							}
 						},
 						onError: () => {
 							toast.error("포스트 발행에 실패했습니다", {

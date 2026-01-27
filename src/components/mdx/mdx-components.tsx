@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Children, isValidElement, type ReactNode } from "react";
+import { extractText, slugify } from "@/lib/utils/text";
 import Callout from "./callout";
 
 const MdxImage = ({ src, alt }: { src: string; alt?: string }) => (
@@ -14,6 +15,29 @@ const MdxImage = ({ src, alt }: { src: string; alt?: string }) => (
 		{alt && <figcaption className="text-center">{alt}</figcaption>}
 	</figure>
 );
+
+const createHeading = (type: "h1" | "h2" | "h3") => {
+	const Heading = ({ children }: { children: ReactNode }) => {
+		const HeadingTag = type;
+
+		const extractedText = extractText(children);
+		const id = slugify(extractedText);
+
+		return (
+			<HeadingTag id={id} className="group scroll-mt-20">
+				{children}
+				<a
+					href={`#${id}`}
+					className="ml-2 no-underline opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground select-none"
+					aria-label={`${extractedText} 섹션 링크`}
+				>
+					#
+				</a>
+			</HeadingTag>
+		);
+	};
+	return Heading;
+};
 
 export const mdxComponents = {
 	Callout,
@@ -31,21 +55,9 @@ export const mdxComponents = {
 		return <p>{children}</p>;
 	},
 	img: MdxImage,
-	// h1: ({ children }: { children: ReactNode }) => (
-	// 	<h1 className="text-4xl font-bold mt-8 mb-4 text-foreground text-balance">
-	// 		{children}
-	// 	</h1>
-	// ),
-	// h2: ({ children }: { children: ReactNode }) => (
-	// 	<h2 className="text-3xl font-semibold mt-12 mb-4 text-foreground text-balance">
-	// 		{children}
-	// 	</h2>
-	// ),
-	// h3: ({ children }: { children: ReactNode }) => (
-	// 	<h3 className="text-2xl font-semibold mt-8 mb-3 text-foreground text-balance">
-	// 		{children}
-	// 	</h3>
-	// ),
+	h1: createHeading("h1"),
+	h2: createHeading("h2"),
+	h3: createHeading("h3"),
 	// p: ({ children }: { children: ReactNode }) => (
 	// 	<p className="mb-4 text-muted-foreground leading-relaxed text-pretty">
 	// 		{children}

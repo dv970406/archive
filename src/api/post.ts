@@ -1,23 +1,31 @@
+import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
-import { cache } from "react";
 import { SUPABASE_ERROR_CODE } from "@/lib/constant/error-code";
 import supabaseClient from "@/lib/supabase/client";
 import type { PostEntity } from "@/types/post";
 
-export const fetchAllPostsForUtils = cache(async () => {
-	const { error, data } = await supabaseClient
-		.from("post")
-		.select("slug, updated_at")
-		.order("updated_at", {
-			ascending: true,
-		})
-		.eq("status", "PUBLISHED");
+// post 데이터는 publish된 후 바뀔 일이 드물어 전반적으로 data cache의 revalidate를 300초로 유지
 
-	if (error) throw error;
-	return data;
-});
+export const fetchAllPostsForUtils = unstable_cache(
+	async () => {
+		const { error, data } = await supabaseClient
+			.from("post")
+			.select("slug, updated_at")
+			.order("updated_at", {
+				ascending: true,
+			})
+			.eq("status", "PUBLISHED");
 
-export const fetchPosts = cache(
+		if (error) throw error;
+		return data;
+	},
+	["all-posts-for-utils"],
+	{
+		revalidate: 300,
+	},
+);
+
+export const fetchPosts = unstable_cache(
 	async ({
 		from,
 		to,
@@ -45,41 +53,55 @@ export const fetchPosts = cache(
 		if (error) throw error;
 		return data;
 	},
+	["all-posts"],
+	{
+		revalidate: 300,
+	},
 );
 
-export const fetchPostById = cache(async (postId: number) => {
-	const { data, error } = await supabaseClient
-		.from("post")
-		.select("*, category: category!category_id (*)")
-		.eq("id", postId)
-		.single();
+export const fetchPostById = unstable_cache(
+	async (postId: number) => {
+		const { data, error } = await supabaseClient
+			.from("post")
+			.select("*, category: category!category_id (*)")
+			.eq("id", postId)
+			.single();
 
-	if (error) {
-		if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
-			notFound();
+		if (error) {
+			if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
+				notFound();
+			}
+			throw error;
 		}
-		throw error;
-	}
-	return data;
-});
+		return data;
+	},
+	["post-by-id"],
+	{
+		revalidate: 300,
+	},
+);
 
-// 리퀘스트 메모이제이션을 위해 cache 함수로 감싼다.
-// metadata 값을 가져오기 위해 한번 호출, 페이지단에서 렌더링을 위해 한번 호출하여도 리퀘스트 메모이제이션에 의해 실제 요청은 한번만 발생
-export const fetchPostBySlug = cache(async (slug: string) => {
-	const { data, error } = await supabaseClient
-		.from("post")
-		.select("*, category: category!category_id (*)")
-		.eq("slug", slug)
-		.single();
+export const fetchPostBySlug = unstable_cache(
+	async (slug: string) => {
+		const { data, error } = await supabaseClient
+			.from("post")
+			.select("*, category: category!category_id (*)")
+			.eq("slug", slug)
+			.single();
 
-	if (error) {
-		if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
-			notFound();
+		if (error) {
+			if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
+				notFound();
+			}
+			throw error;
 		}
-		throw error;
-	}
-	return data;
-});
+		return data;
+	},
+	["post-by-slug"],
+	{
+		revalidate: 300,
+	},
+);
 
 export const fetchSavedPostDraft = async () => {
 	const { data, error } = await supabaseClient

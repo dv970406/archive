@@ -7,11 +7,11 @@ export const generateSummary = async (content: string) => {
 	const summaryResponse = await client.messages.create({
 		// 한글 3-7줄 요약
 		// 실제 사용: 150-300 토큰 정도이므로 넉넉히 500으로 설정
-		max_tokens: 500, // 여유있게 안전함
+		max_tokens: 500,
 		messages: [
 			{
 				content: `
-				 다음 규칙을 지켜서 요약이 필요합니다
+				 다음 규칙을 지켜서 요약이 필요합니다.
 
 				 1. 존칭을 사용해주세요.
 				 2. 적절히 개행을 넣되, 개행 포함 없이 내용만 3~7줄로 요약해주세요.

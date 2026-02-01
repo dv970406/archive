@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { BlogPosting, WithContext } from "schema-dts";
 import { fetchAllPostsForUtils, fetchPostBySlug } from "@/api/post";
 import Giscus from "@/components/pages/post/detail/giscus";
 import PostDetailBody from "@/components/pages/post/detail/post-detail-body";
@@ -11,6 +12,7 @@ import ViewTracker from "@/components/pages/post/detail/view-tracker";
 import { getPostBySlugQuery } from "@/hooks/queries/post";
 import { PLACEHOLDER_THUMBNAIL_PATH } from "@/lib/constant/image";
 import { getQueryClient } from "@/lib/utils/tanstack-query";
+import JsonLdProvider from "@/provider/jsonld-provider";
 
 // 포스트 상세 페이지는 ISR로 5분간 캐싱 처리
 export const revalidate = 300;
@@ -77,33 +79,64 @@ const PostDetailPage = async ({
 		view_count,
 		published_at,
 		thumbnail,
+		updated_at,
+		ai_summary,
 	} = postData;
+
+	const jsonLd: WithContext<BlogPosting> = {
+		"@context": "https://schema.org",
+		"@type": "BlogPosting",
+		headline: title,
+		description: ai_summary ?? undefined,
+		image: thumbnail ?? undefined,
+		datePublished: published_at ?? undefined,
+		dateModified: updated_at,
+		dateCreated: created_at,
+		articleSection: category?.title,
+		author: {
+			"@type": "Person",
+			name: "최성준",
+			url: process.env.NEXT_PUBLIC_SITE_URL,
+			jobTitle: "프론트엔드 엔지니어",
+		},
+		publisher: {
+			"@type": "Person",
+			name: "최성준",
+			url: process.env.NEXT_PUBLIC_SITE_URL,
+		},
+		mainEntityOfPage: {
+			"@type": "WebPage",
+			"@id": `${process.env.NEXT_PUBLIC_SITE_URL}/post/${slug}`,
+		},
+	};
 
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>
-			<main className="mx-auto py-12 max-w-3xl">
-				<Link
-					href="/"
-					className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 w-fit"
-				>
-					<ArrowLeft className="w-4 h-4" />
-					<span>목록으로</span>
-				</Link>
+			<JsonLdProvider jsonLd={jsonLd}>
+				<main className="mx-auto py-12 max-w-3xl">
+					<Link
+						href="/"
+						className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 w-fit"
+					>
+						<ArrowLeft className="w-4 h-4" />
+						<span>목록으로</span>
+					</Link>
 
-				<PostDetailHeader
-					category={category}
-					title={title}
-					view_count={view_count}
-					created_at={created_at}
-					published_at={published_at}
-					thumbnail={thumbnail}
-				/>
+					<PostDetailHeader
+						category={category}
+						title={title}
+						view_count={view_count}
+						created_at={created_at}
+						published_at={published_at}
+						thumbnail={thumbnail}
+					/>
 
-				<PostDetailBody content={content} />
+					<PostDetailBody content={content} />
 
-				<Giscus />
-			</main>
-			<ViewTracker id={id} />
+					<Giscus />
+				</main>
+				<ViewTracker id={id} />
+			</JsonLdProvider>
 		</HydrationBoundary>
 	);
 };

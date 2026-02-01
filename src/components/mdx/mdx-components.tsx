@@ -1,20 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Children, isValidElement, type ReactNode } from "react";
 import { extractText, slugify } from "@/lib/utils/text";
 import Callout from "./callout";
-
-const MdxImage = ({ src, alt }: { src: string; alt?: string }) => (
-	<figure>
-		<Image
-			src={src || ""}
-			alt={alt || ""}
-			fill
-			className="relative! rounded-lg my-6"
-		/>
-		{alt && <figcaption className="text-center">{alt}</figcaption>}
-	</figure>
-);
+import MdxImage from "./image";
+import ImageGallery from "./image-gallery";
 
 const createHeading = (type: "h1" | "h2" | "h3") => {
 	const Heading = ({ children }: { children: ReactNode }) => {
@@ -41,6 +30,7 @@ const createHeading = (type: "h1" | "h2" | "h3") => {
 
 export const mdxComponents = {
 	Callout,
+	ImageGallery,
 	a: ({ href, children }: { href?: string; children: ReactNode }) => (
 		<Link href={href || "#"} rel="noopener noreferrer" target="_blank">
 			{children}

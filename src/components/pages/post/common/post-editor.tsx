@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { useImageUploader } from "@/hooks/post/use-image-uploader";
 import type { IUsePublishPostReturn } from "@/hooks/post/use-publish-post";
+import { TEXTAREA_POST_EDITOR_ID } from "@/lib/constant/element-id";
 import {
 	usePostDraft,
 	useSetContent,
@@ -18,12 +19,9 @@ const PostEditor = ({ isPending }: IPostEditorProps) => {
 	const setSlug = useSetSlug();
 
 	const { content, title, id, slug } = usePostDraft();
-	const { handleDragOver, handleDrop, handlePaste, textareaRef } =
-		useImageUploader({
-			postId: id,
-			content,
-			setContent,
-		});
+	const { handleDragOver, handleDrop, handlePaste } = useImageUploader({
+		postId: id,
+	});
 
 	return (
 		<div className={"flex-1 flex flex-col"}>
@@ -50,8 +48,8 @@ const PostEditor = ({ isPending }: IPostEditorProps) => {
 			</div>
 
 			<textarea
+				id={TEXTAREA_POST_EDITOR_ID}
 				disabled={isPending}
-				ref={textareaRef}
 				value={content}
 				onChange={(event) => setContent(event.currentTarget.value)}
 				onDragOver={handleDragOver}

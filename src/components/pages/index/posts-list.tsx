@@ -38,8 +38,8 @@ const PostsList = () => {
 									</div>
 
 									<div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground mb-3">
-										<time dateTime={post.published_at ?? post.created_at}>
-											{formatTimeAgo(post.published_at ?? post.created_at)}
+										<time dateTime={post.published_at || post.created_at}>
+											{formatTimeAgo(post.published_at || post.created_at)}
 										</time>
 										<span>·</span>
 										<span>조회 수 {post.view_count}</span>

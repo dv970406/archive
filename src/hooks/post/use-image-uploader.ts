@@ -1,51 +1,16 @@
-import {
-	type ClipboardEventHandler,
-	type DragEventHandler,
-	useRef,
-} from "react";
+import type { ClipboardEventHandler, DragEventHandler } from "react";
 import { toast } from "sonner";
+import { TEXTAREA_POST_EDITOR_ID } from "@/lib/constant/element-id";
 import { convertToWebp } from "@/lib/utils/webp-converter";
 import { useUploadImageMutation } from "../mutations/image";
+import { useTextareaController } from "./use-textarea-controller";
 
 interface IUseImageUploaderProps {
 	postId: number;
-	content: string;
-	setContent: (content: string) => void;
 }
-export const useImageUploader = ({
-	postId,
-	content,
-	setContent,
-}: IUseImageUploaderProps) => {
-	const textareaRef = useRef<HTMLTextAreaElement>(null);
+export const useImageUploader = ({ postId }: IUseImageUploaderProps) => {
+	const { insertTextAtCursor } = useTextareaController(TEXTAREA_POST_EDITOR_ID);
 	const { mutate: uploadImage } = useUploadImageMutation();
-
-	// 현재 커서 위치에 텍스트 삽입
-	const insertTextAtCursor = (text: string) => {
-		const textarea = textareaRef.current;
-		if (!textarea) return;
-
-		const { selectionStart, selectionEnd } = textarea;
-
-		// 커서 위치 전/후로 content string을 분할한다.
-		const before = content.slice(0, selectionStart);
-		const after = content.slice(selectionEnd);
-
-		// 개행을 해야하는지 체크
-		const needsNewline = before.length > 0 && !before.endsWith("\n");
-		const inserted = (needsNewline ? "\n" : "") + text;
-
-		// 커서 위치에 새로운 content를 넣는다.
-		const newContent = before + inserted + after;
-		setContent(newContent);
-
-		// 커서 위치를 삽입된 텍스트 뒤로 이동
-		const newCursorPos = selectionStart + inserted.length;
-		setTimeout(() => {
-			textarea.selectionStart = textarea.selectionEnd = newCursorPos;
-			textarea.focus();
-		}, 0);
-	};
 
 	// 드래그 오버 핸들러
 	const handleDragOver: DragEventHandler<HTMLTextAreaElement> = (event) => {
@@ -141,6 +106,5 @@ export const useImageUploader = ({
 		handleDragOver,
 		handleDrop,
 		handlePaste,
-		textareaRef,
 	};
 };

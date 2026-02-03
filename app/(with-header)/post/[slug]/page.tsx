@@ -91,7 +91,7 @@ const PostDetailPage = async ({
 		image: thumbnail ?? undefined,
 		datePublished: published_at ?? undefined,
 		dateModified: updated_at,
-		dateCreated: created_at,
+		dateCreated: published_at || created_at,
 		articleSection: category?.title,
 		author: {
 			"@type": "Person",

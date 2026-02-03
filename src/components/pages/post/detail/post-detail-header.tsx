@@ -31,8 +31,8 @@ const PostDetailHeader = ({
 			<h1 className="text-4xl font-bold mb-6">{title}</h1>
 
 			<div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-				<time dateTime={published_at ?? created_at}>
-					{formatTimeAgo(published_at ?? created_at)}
+				<time dateTime={published_at || created_at}>
+					{formatTimeAgo(published_at || created_at)}
 				</time>
 				<span>·</span>
 				<span>조회 수 {view_count}</span>

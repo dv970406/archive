@@ -183,3 +183,55 @@ export const increasePostViewCount = async (postId: number) => {
 
 	if (error) throw error;
 };
+
+interface IFetchAdjacentPostsProps
+	extends Pick<PostEntity, "category_id" | "published_at" | "id"> {}
+
+export const fetchAdjacentPosts = unstable_cache(
+	async ({ category_id, id, published_at }: IFetchAdjacentPostsProps) => {
+		if (!category_id) {
+			return {
+				prev: null,
+				next: null,
+			};
+		}
+
+		// 이전 글: 같은 카테고리에서 publishedAt이 현재보다 과거인 글 중 가장 최신인 글
+		const prevPromise = supabaseClient
+			.from("post")
+			.select("slug, title")
+			.eq("category_id", category_id)
+			.eq("status", "PUBLISHED")
+			.neq("id", id)
+			.lt("published_at", published_at)
+			.order("published_at", { ascending: false })
+			.limit(1)
+			.single();
+
+		// 다음 글: 같은 카테고리에서 publishedAt이 현재보다 미래인 글 중 가장 오래된 글
+		const nextPromise = supabaseClient
+			.from("post")
+			.select("slug, title")
+			.eq("category_id", category_id)
+			.eq("status", "PUBLISHED")
+			.neq("id", id)
+			.gt("published_at", published_at)
+			.order("published_at", { ascending: true })
+			.limit(1)
+			.single();
+
+		const [prevResult, nextResult] = await Promise.all([
+			prevPromise,
+			nextPromise,
+		]);
+
+		return {
+			prev: prevResult.data,
+			next: nextResult.data,
+		};
+	},
+	["adjacent-posts"],
+	{
+		revalidate: 300,
+	},
+);

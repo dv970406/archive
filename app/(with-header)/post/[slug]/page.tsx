@@ -9,6 +9,7 @@ import {
 	fetchAllPostsForUtils,
 	fetchPostBySlug,
 } from "@/api/post";
+import FloatingSummary from "@/components/pages/post/detail/floating-summary";
 import Giscus from "@/components/pages/post/detail/giscus";
 import PostDetailBody from "@/components/pages/post/detail/post-detail-body";
 import PostDetailHeader from "@/components/pages/post/detail/post-detail-header";
@@ -88,6 +89,7 @@ const PostDetailPage = async ({
 		category_id,
 	} = postData;
 
+	const summary = ai_summary?.split("\n\n") ?? [];
 	// 같은 카테고리 내 이전/다음 글 조회
 	const adjacentPosts = await fetchAdjacentPosts({
 		category_id,
@@ -149,6 +151,8 @@ const PostDetailPage = async ({
 
 					<Giscus />
 				</main>
+
+				{ai_summary && <FloatingSummary summary={summary} />}
 				<ViewTracker id={id} />
 			</JsonLdProvider>
 		</HydrationBoundary>

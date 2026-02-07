@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
+	fetchAllPosts,
 	fetchPostById,
 	fetchPostBySlug,
 	fetchPosts,
@@ -61,4 +62,13 @@ export const useGetInfinitePosts = (categoryId?: number) => {
 		// 유저가 리스트를 보다가 다른 페이지로 갔다가 다시 리스트로 돌아왔을 때 또 방대한 리스트 데이터를 페칭하는 것을 막기 위함
 		staleTime: Infinity,
 	});
+};
+
+export const getAllPostQuery = {
+	queryKey: QUERY_KEYS.post.all,
+	queryFn: fetchAllPosts,
+};
+
+export const useGetAllPosts = () => {
+	return useQuery(getAllPostQuery);
 };

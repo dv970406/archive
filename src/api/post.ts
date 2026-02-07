@@ -4,8 +4,6 @@ import { SUPABASE_ERROR_CODE } from "@/lib/constant/error-code";
 import supabaseClient from "@/lib/supabase/client";
 import type { PostEntity } from "@/types/post";
 
-// post 데이터는 publish된 후 바뀔 일이 드물어 전반적으로 data cache의 revalidate를 300초로 유지
-
 export const fetchAllPostsForUtils = unstable_cache(
 	async () => {
 		const { error, data } = await supabaseClient
@@ -25,6 +23,7 @@ export const fetchAllPostsForUtils = unstable_cache(
 	},
 );
 
+// post 데이터는 publish된 후 바뀔 일이 드물어 전반적으로 data cache의 revalidate를 300초로 유지
 export const fetchPosts = unstable_cache(
 	async ({
 		from,
@@ -53,7 +52,7 @@ export const fetchPosts = unstable_cache(
 		if (error) throw error;
 		return data;
 	},
-	["all-posts"],
+	["posts"],
 	{
 		revalidate: 300,
 	},
@@ -184,8 +183,10 @@ export const increasePostViewCount = async (postId: number) => {
 	if (error) throw error;
 };
 
-interface IFetchAdjacentPostsProps
-	extends Pick<PostEntity, "category_id" | "published_at" | "id"> {}
+type IFetchAdjacentPostsProps = Pick<
+	PostEntity,
+	"category_id" | "published_at" | "id"
+>;
 
 export const fetchAdjacentPosts = unstable_cache(
 	async ({ category_id, id, published_at }: IFetchAdjacentPostsProps) => {
@@ -231,6 +232,25 @@ export const fetchAdjacentPosts = unstable_cache(
 		};
 	},
 	["adjacent-posts"],
+	{
+		revalidate: 300,
+	},
+);
+
+export const fetchAllPosts = unstable_cache(
+	async () => {
+		const { data, error } = await supabaseClient
+			.from("post")
+			.select("*, category: category!category_id (*)")
+			.eq("status", "PUBLISHED")
+			.order("published_at", {
+				ascending: false,
+			});
+
+		if (error) throw error;
+		return data;
+	},
+	["all-posts"],
 	{
 		revalidate: 300,
 	},

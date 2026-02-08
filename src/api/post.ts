@@ -4,8 +4,6 @@ import { SUPABASE_ERROR_CODE } from "@/lib/constant/error-code";
 import supabaseClient from "@/lib/supabase/client";
 import type { PostEntity } from "@/types/post";
 
-// post 데이터는 publish된 후 바뀔 일이 드물어 전반적으로 data cache의 revalidate를 300초로 유지
-
 export const fetchAllPostsForUtils = unstable_cache(
 	async () => {
 		const { error, data } = await supabaseClient
@@ -25,6 +23,7 @@ export const fetchAllPostsForUtils = unstable_cache(
 	},
 );
 
+// post 데이터는 publish된 후 바뀔 일이 드물어 전반적으로 data cache의 revalidate를 300초로 유지
 export const fetchPosts = unstable_cache(
 	async ({
 		from,
@@ -53,7 +52,7 @@ export const fetchPosts = unstable_cache(
 		if (error) throw error;
 		return data;
 	},
-	["all-posts"],
+	["posts"],
 	{
 		revalidate: 300,
 	},
@@ -81,13 +80,19 @@ export const fetchPostById = unstable_cache(
 	},
 );
 
-export const fetchPostBySlug = unstable_cache(
+// 어떠한 컴포넌트에서도 호출 가능한 페치문
+export const fetchPostBySlug = async (slug: string) => {
+	return supabaseClient
+		.from("post")
+		.select("*, category: category!category_id (*)")
+		.eq("slug", slug)
+		.single();
+};
+
+// 서버 컴포넌트 전용 (unstable_cache + notFound 사용)
+export const cachedPostBySlug = unstable_cache(
 	async (slug: string) => {
-		const { data, error } = await supabaseClient
-			.from("post")
-			.select("*, category: category!category_id (*)")
-			.eq("slug", slug)
-			.single();
+		const { data, error } = await fetchPostBySlug(slug);
 
 		if (error) {
 			if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
@@ -183,3 +188,76 @@ export const increasePostViewCount = async (postId: number) => {
 
 	if (error) throw error;
 };
+
+type IFetchAdjacentPostsProps = Pick<
+	PostEntity,
+	"category_id" | "published_at" | "id"
+>;
+
+export const fetchAdjacentPosts = unstable_cache(
+	async ({ category_id, id, published_at }: IFetchAdjacentPostsProps) => {
+		if (!category_id) {
+			return {
+				prev: null,
+				next: null,
+			};
+		}
+
+		// 이전 글: 같은 카테고리에서 publishedAt이 현재보다 과거인 글 중 가장 최신인 글
+		const prevPromise = supabaseClient
+			.from("post")
+			.select("slug, title")
+			.eq("category_id", category_id)
+			.eq("status", "PUBLISHED")
+			.neq("id", id)
+			.lt("published_at", published_at)
+			.order("published_at", { ascending: false })
+			.limit(1)
+			.single();
+
+		// 다음 글: 같은 카테고리에서 publishedAt이 현재보다 미래인 글 중 가장 오래된 글
+		const nextPromise = supabaseClient
+			.from("post")
+			.select("slug, title")
+			.eq("category_id", category_id)
+			.eq("status", "PUBLISHED")
+			.neq("id", id)
+			.gt("published_at", published_at)
+			.order("published_at", { ascending: true })
+			.limit(1)
+			.single();
+
+		const [prevResult, nextResult] = await Promise.all([
+			prevPromise,
+			nextPromise,
+		]);
+
+		return {
+			prev: prevResult.data,
+			next: nextResult.data,
+		};
+	},
+	["adjacent-posts"],
+	{
+		revalidate: 300,
+	},
+);
+
+export const fetchAllPosts = unstable_cache(
+	async () => {
+		const { data, error } = await supabaseClient
+			.from("post")
+			.select("*, category: category!category_id (*)")
+			.eq("status", "PUBLISHED")
+			.order("published_at", {
+				ascending: false,
+			});
+
+		if (error) throw error;
+		return data;
+	},
+	["all-posts"],
+	{
+		revalidate: 300,
+	},
+);

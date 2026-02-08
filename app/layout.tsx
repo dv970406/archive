@@ -42,7 +42,7 @@ const RootLayout = ({
 		<html lang="ko" suppressHydrationWarning>
 			<body className={"font-sans antialiased"}>
 				<RTKProvider>
-					<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+					<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
 						{children}
 						<div id="modal-root" />
 						<PortalProvider />

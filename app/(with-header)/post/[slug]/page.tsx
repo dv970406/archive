@@ -4,12 +4,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { BlogPosting, WithContext } from "schema-dts";
-import { fetchAllPostsForUtils, fetchPostBySlug } from "@/api/post";
+import {
+	cachedPostBySlug,
+	fetchAdjacentPosts,
+	fetchAllPostsForUtils,
+} from "@/api/post";
+import FloatingSummary from "@/components/pages/post/detail/floating-summary";
 import Giscus from "@/components/pages/post/detail/giscus";
 import PostDetailBody from "@/components/pages/post/detail/post-detail-body";
 import PostDetailHeader from "@/components/pages/post/detail/post-detail-header";
+import PostNavigation from "@/components/pages/post/detail/post-navigation";
 import ViewTracker from "@/components/pages/post/detail/view-tracker";
-import { getPostBySlugQuery } from "@/hooks/queries/post";
 import { PLACEHOLDER_THUMBNAIL_PATH } from "@/lib/constant/image";
 import { getQueryClient } from "@/lib/utils/tanstack-query";
 import JsonLdProvider from "@/provider/jsonld-provider";
@@ -24,8 +29,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { slug } = await params;
 
-	// metadata단의 아래코드와 페이지단에서 getPostBySlugQuery의 요청문인 fetchPostBySlug까지 총 두번 요청할 것처럼 보여도 '리퀘스트 메모이제이션'에 의해 한번만 요청됨
-	const postData = await fetchPostBySlug(slug);
+	const postData = await cachedPostBySlug(slug);
 
 	return {
 		title: postData.title ?? "",
@@ -64,7 +68,7 @@ const PostDetailPage = async ({
 	const queryClient = getQueryClient();
 
 	// 헤더, 바디 컴포넌트를 서버 컴포넌트로만 구현하기 위해 useQuery를 사용하지 않음
-	const postData = await queryClient.fetchQuery(getPostBySlugQuery(slug));
+	const postData = await cachedPostBySlug(slug);
 
 	if (!postData) {
 		notFound();
@@ -81,7 +85,16 @@ const PostDetailPage = async ({
 		thumbnail,
 		updated_at,
 		ai_summary,
+		category_id,
 	} = postData;
+
+	const summary = ai_summary?.split("\n\n") ?? [];
+	// 같은 카테고리 내 이전/다음 글 조회
+	const adjacentPosts = await fetchAdjacentPosts({
+		category_id,
+		published_at,
+		id,
+	});
 
 	const jsonLd: WithContext<BlogPosting> = {
 		"@context": "https://schema.org",
@@ -133,8 +146,12 @@ const PostDetailPage = async ({
 
 					<PostDetailBody content={content} />
 
+					<PostNavigation next={adjacentPosts.next} prev={adjacentPosts.prev} />
+
 					<Giscus />
 				</main>
+
+				{ai_summary && <FloatingSummary summary={summary} />}
 				<ViewTracker id={id} />
 			</JsonLdProvider>
 		</HydrationBoundary>

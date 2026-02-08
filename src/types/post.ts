@@ -10,3 +10,5 @@ export interface Post extends PostEntity {
 
 export type EditorTab = "write" | "preview" | "split";
 export type PostStatus = "PUBLISHED" | "DRAFT";
+
+export interface AdjacentPosts extends Pick<PostEntity, "slug" | "title"> {}

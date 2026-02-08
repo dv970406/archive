@@ -5,9 +5,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { BlogPosting, WithContext } from "schema-dts";
 import {
+	cachedPostBySlug,
 	fetchAdjacentPosts,
 	fetchAllPostsForUtils,
-	fetchPostBySlug,
 } from "@/api/post";
 import FloatingSummary from "@/components/pages/post/detail/floating-summary";
 import Giscus from "@/components/pages/post/detail/giscus";
@@ -29,8 +29,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { slug } = await params;
 
-	// metadata단의 아래코드와 페이지단에서 getPostBySlugQuery의 요청문인 fetchPostBySlug까지 총 두번 요청할 것처럼 보여도 '리퀘스트 메모이제이션'에 의해 한번만 요청됨
-	const postData = await fetchPostBySlug(slug);
+	const postData = await cachedPostBySlug(slug);
 
 	return {
 		title: postData.title ?? "",
@@ -69,7 +68,7 @@ const PostDetailPage = async ({
 	const queryClient = getQueryClient();
 
 	// 헤더, 바디 컴포넌트를 서버 컴포넌트로만 구현하기 위해 useQuery를 사용하지 않음
-	const postData = await fetchPostBySlug(slug);
+	const postData = await cachedPostBySlug(slug);
 
 	if (!postData) {
 		notFound();

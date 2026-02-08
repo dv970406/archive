@@ -19,7 +19,15 @@ export const useGetPostById = (postId: number) => {
 
 export const getPostBySlugQuery = (slug: string) => ({
 	queryKey: QUERY_KEYS.post.bySlug(slug),
-	queryFn: () => fetchPostBySlug(slug),
+	queryFn: async () => {
+		const { data, error } = await fetchPostBySlug(slug);
+
+		if (error) {
+			throw error;
+		}
+
+		return data;
+	},
 });
 
 export const useGetPostBySlug = (slug: string) => {

@@ -80,13 +80,19 @@ export const fetchPostById = unstable_cache(
 	},
 );
 
-export const fetchPostBySlug = unstable_cache(
+// 어떠한 컴포넌트에서도 호출 가능한 페치문
+export const fetchPostBySlug = async (slug: string) => {
+	return supabaseClient
+		.from("post")
+		.select("*, category: category!category_id (*)")
+		.eq("slug", slug)
+		.single();
+};
+
+// 서버 컴포넌트 전용 (unstable_cache + notFound 사용)
+export const cachedPostBySlug = unstable_cache(
 	async (slug: string) => {
-		const { data, error } = await supabaseClient
-			.from("post")
-			.select("*, category: category!category_id (*)")
-			.eq("slug", slug)
-			.single();
+		const { data, error } = await fetchPostBySlug(slug);
 
 		if (error) {
 			if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {

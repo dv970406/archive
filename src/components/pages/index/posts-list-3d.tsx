@@ -14,8 +14,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useGetAllPosts } from "@/hooks/queries/post";
 import { PLACEHOLDER_THUMBNAIL_PATH } from "@/lib/constant/image";
-import { cn } from "@/lib/style/tailwind";
-import { getCategoryColor } from "@/lib/utils/color";
 import { parseMarkdownToPlainText } from "@/lib/utils/markdown";
 import { formatTimeAgo } from "@/lib/utils/time";
 import type { Post } from "@/types/post";
@@ -51,50 +49,37 @@ const PostItem = ({
 	thumbnail,
 	title,
 }: IPostItem) => {
-	const colors = getCategoryColor(category?.id ?? 1);
 	return (
 		<Link
 			href={`/post/${slug}`}
-			className={cn(
-				"group overflow-hidden",
-				"inline-block w-80 rounded-xl border",
-				"shadow-lg hover:shadow-2xl",
-				"transition-all duration-1500 ease-out will-change-transform",
-				colors.bg,
-				colors.border,
-			)}
+			className="group inline-block w-80 overflow-hidden rounded-xl border border-border/40 bg-card text-card-foreground shadow-sm hover:shadow-lg transition-all duration-300"
 		>
-			<div className={`w-full h-[200px]`}>
+			<div className="relative aspect-video w-full overflow-hidden bg-muted">
 				<Image
 					src={thumbnail || PLACEHOLDER_THUMBNAIL_PATH}
 					alt={title}
-					className="relative! w-full h-full rounded-t-xl object-cover group-hover:scale-110 transition-transform duration-300  "
 					fill
+					className="object-cover group-hover:scale-105 transition-transform duration-300"
 					loading="lazy"
 				/>
 			</div>
-			<div className="p-4">
-				<div
-					className={`
-					inline-block px-3 py-1.5 rounded-full text-[11px] font-semibold
-					text-white uppercase tracking-wider mb-3
-					${colors.category}
-				`}
-				>
-					{category?.title}
+			<div className="p-5">
+				<div className="flex items-center gap-2 mb-3">
+					<span className="px-3 py-1 text-xs font-semibold bg-primary text-primary-foreground rounded-md">
+						{category?.title}
+					</span>
 				</div>
-				<h2 className="text-base font-bold text-white mb-2 leading-tight line-clamp-2">
+				<div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+					<time dateTime={published_at || created_at}>
+						{formatTimeAgo(published_at || created_at)}
+					</time>
+				</div>
+				<h2 className="text-lg font-semibold mb-2 text-foreground group-hover:text-primary transition-colors line-clamp-1">
 					{title}
 				</h2>
-				<p className="text-[13px] text-white/70 leading-relaxed mb-3 line-clamp-2 break-all">
+				<p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
 					{parseMarkdownToPlainText(content)}
 				</p>
-				<time
-					className="text-xs text-white/50"
-					dateTime={published_at || created_at}
-				>
-					{formatTimeAgo(published_at || created_at)}
-				</time>
 			</div>
 		</Link>
 	);
@@ -307,7 +292,7 @@ const PostsList3D = () => {
 		<div className="relative">
 			<div
 				ref={containerRef}
-				className="fixed top-0 left-0 w-screen h-screen"
+				className="fixed top-0 left-0 w-screen h-screen bg-slate-300 dark:bg-neutral-950"
 			/>
 
 			<div className="fixed bottom-8 inset-x-0 flex flex-col items-center gap-2">

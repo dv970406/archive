@@ -19,29 +19,14 @@ const GlobalHeader = async () => {
 					</Link>
 
 					<nav className="flex items-center gap-6">
-						<NavigationLink href="/" text="글 목록" />
-						<NavigationLink href="/career" text="커리어" />
+						{/* <NavigationLink href="/" text="글 목록" /> */}
+						{/* <NavigationLink href="/career" text="커리어" /> */}
 						<PostsListTypeToggle />
 						<ThemeToggle />
 					</nav>
 				</div>
 			</div>
 		</header>
-	);
-};
-
-interface INavigationLink {
-	href: string;
-	text: string;
-}
-const NavigationLink = ({ href, text }: INavigationLink) => {
-	return (
-		<Link
-			href={href}
-			className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-		>
-			{text}
-		</Link>
 	);
 };
 

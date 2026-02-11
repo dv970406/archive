@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { fetchAllCategories } from "@/api/category";
+import { cachedAllCategories } from "@/api/category";
 
 const CategoryFilter = async () => {
-	const allCategories = await fetchAllCategories();
+	const allCategories = await cachedAllCategories();
 
 	return (
 		<ul className="flex gap-2 flex-wrap mb-8">

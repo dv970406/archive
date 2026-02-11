@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import type { Metadata } from "next";
 import type { CollectionPage, WithContext } from "schema-dts";
-import { fetchAllCategories, fetchCategoryByPathname } from "@/api/category";
+import { cachedAllCategories, fetchCategoryByPathname } from "@/api/category";
 import CategoryFilter from "@/components/pages/index/category-filter";
 import PostsList from "@/components/pages/index/posts-list";
 import { getCategoryByPathnameQuery } from "@/hooks/queries/category";
@@ -32,7 +32,7 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-	const categories = await fetchAllCategories();
+	const categories = await cachedAllCategories();
 
 	return categories.map((category) => ({
 		slug: category.pathname,

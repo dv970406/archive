@@ -23,14 +23,15 @@ export const formatTimeAgo = (time: Date | string | number) => {
 		return `${dayDiff}일 전`;
 	}
 
-	// "몇 주 전" 도 몇 달 전과 마찬가지로 4주를 근사치로 잡는다.
+	// "몇 달 전" 같은 상대적 시간 표시에서는 28~31일 중 택일을 해야할 만큼 정밀한 정확도가 필요하지 않아서 30일 근사치를 사용
+	const monthDiff = Math.floor(dayDiff / 30);
+
+	// monthDiff < 1 (dayDiff < 30) 이면 주 단위로 표시 → weekDiff는 최소 1 보장
 	const weekDiff = Math.floor(dayDiff / 7);
-	if (weekDiff < 4) {
+	if (monthDiff < 1) {
 		return `${weekDiff}주 전`;
 	}
 
-	// "몇 달 전" 같은 상대적 시간 표시에서는 28~31일 중 택일을 해야할 만큼 정밀한 정확도가 필요하지 않아서 30일 근사치를 사용
-	const monthDiff = Math.floor(dayDiff / 30);
 	if (monthDiff < 3) {
 		return `${monthDiff}달 전`;
 	}

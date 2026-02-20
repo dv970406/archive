@@ -30,6 +30,11 @@ export const metadata: Metadata = {
 			},
 		],
 	},
+	alternates: {
+		types: {
+			"application/rss+xml": `${process.env.NEXT_PUBLIC_SITE_URL}/rss.xml`,
+		},
+	},
 };
 
 const RootLayout = ({

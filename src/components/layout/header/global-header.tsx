@@ -1,3 +1,4 @@
+import { Rss } from "lucide-react";
 import Link from "next/link";
 import PostsListTypeToggle from "@/components/ui/posts-list-type-toggle";
 import ThemeToggle from "../../ui/theme-toggle";
@@ -22,6 +23,15 @@ const GlobalHeader = async () => {
 						{/* <NavigationLink href="/" text="글 목록" /> */}
 						{/* <NavigationLink href="/career" text="커리어" /> */}
 						<PostsListTypeToggle />
+						<Link
+							href="/rss.xml"
+							target="_blank"
+							rel="noopener noreferrer"
+							aria-label="RSS 피드 구독"
+							className="text-muted-foreground hover:text-foreground transition-colors"
+						>
+							<Rss size={18} />
+						</Link>
 						<ThemeToggle />
 					</nav>
 				</div>

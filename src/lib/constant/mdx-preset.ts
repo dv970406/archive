@@ -21,6 +21,8 @@ const createCalloutSnippet = (type: TCallout) =>
 const createImageGallerySnippet = () =>
 	`<ImageGallery>\n\t<ImageGallery.Image src="" alt="" />\n\t<ImageGallery.Image src="" alt="" />\n</ImageGallery>`;
 
+const createVideoSnippet = () => `<Video src="" />`;
+
 export const mdxComponentConfigs: IMdxComponentConfig[] = [
 	{
 		id: "callout",
@@ -36,5 +38,10 @@ export const mdxComponentConfigs: IMdxComponentConfig[] = [
 		id: "imageGallery",
 		label: "ImageGallery",
 		snippet: createImageGallerySnippet(),
+	},
+	{
+		id: "video",
+		label: "Video",
+		snippet: createVideoSnippet(),
 	},
 ];

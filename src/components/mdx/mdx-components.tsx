@@ -4,6 +4,7 @@ import { extractText, slugify } from "@/lib/utils/text";
 import Callout from "./callout";
 import MdxImage from "./image";
 import ImageGallery from "./image-gallery";
+import MdxVideo from "./video";
 
 const createHeading = (type: "h1" | "h2" | "h3") => {
 	const Heading = ({ children }: { children: ReactNode }) => {
@@ -31,6 +32,7 @@ const createHeading = (type: "h1" | "h2" | "h3") => {
 export const mdxComponents = {
 	Callout,
 	ImageGallery,
+	Video: MdxVideo,
 	a: ({ href, children }: { href?: string; children: ReactNode }) => (
 		<Link href={href || "#"} rel="noopener noreferrer" target="_blank">
 			{children}
@@ -39,7 +41,9 @@ export const mdxComponents = {
 	p: ({ children }: { children: ReactNode }) => {
 		// <p> 태그 안에 <figcaption> 태그가 들어가는 경우 invalid 에러가 나서 <p>로 감싸지 않는다
 		const hasBlockChild = Children.toArray(children).some(
-			(child) => isValidElement(child) && child.type === MdxImage,
+			(child) =>
+				isValidElement(child) &&
+				(child.type === MdxImage || child.type === MdxVideo),
 		);
 		if (hasBlockChild) return <>{children}</>;
 		return <p>{children}</p>;

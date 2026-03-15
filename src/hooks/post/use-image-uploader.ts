@@ -1,9 +1,13 @@
 import type { ClipboardEventHandler, DragEventHandler } from "react";
 import { toast } from "sonner";
 import { TEXTAREA_POST_EDITOR_ID } from "@/lib/constant/element-id";
+import { isImage, isVideo } from "@/lib/utils/media-type";
+import { convertToWebm } from "@/lib/utils/webm-converter";
 import { convertToWebp } from "@/lib/utils/webp-converter";
 import { useUploadImageMutation } from "../mutations/image";
 import { useTextareaController } from "./use-textarea-controller";
+
+const MAX_VIDEO_SIZE = 500 * 1024; // 500KB
 
 interface IUseImageUploaderProps {
 	postId: number;
@@ -18,88 +22,102 @@ export const useImageUploader = ({ postId }: IUseImageUploaderProps) => {
 		event.stopPropagation();
 	};
 
-	// 이미지 업로드 공통 로직
-	const handleUploadImage = async (imageFile: File) => {
-		try {
-			const timestamp = Date.now();
-			const randomString = crypto.randomUUID();
+	// 업로드 공통 로직
+	const handleUploadMedia = (mediaFile: File, mediaType: "image" | "video") => {
+		const timestamp = Date.now();
+		const randomString = crypto.randomUUID();
+		const fileExt = mediaFile.name.split(".").pop() ?? "bin";
+		const filePath = `${postId}/${timestamp}-${randomString}.${fileExt}`;
 
-			const fileExt = imageFile.name.split(".").pop();
-
-			// webp로 변환되므로 확장자는 항상 webp
-			const filePath = `${postId}/${timestamp}-${randomString}.${fileExt}`;
-
-			uploadImage(
-				{ file: imageFile, filePath },
-				{
-					onSuccess: (receivedData) => {
-						// textarea 최하단에 이미지를 마크다운 문법으로 추가
-						const imageMarkdown = `![](${receivedData})\n`;
-						insertTextAtCursor(imageMarkdown);
-					},
-					onError: (error) => {
-						toast.error(`업로드 실패: ${error.message}`, {
-							position: "top-center",
-						});
-					},
+		uploadImage(
+			{ file: mediaFile, filePath },
+			{
+				onSuccess: (receivedData) => {
+					const markdown =
+						mediaType === "video"
+							? `<Video src="${receivedData}" />\n`
+							: `![](${receivedData})\n`;
+					insertTextAtCursor(markdown);
 				},
-			);
+				onError: (error) => {
+					toast.error(`업로드 실패: ${error.message}`, {
+						position: "top-center",
+					});
+				},
+			},
+		);
+	};
+
+	// 파일 처리 공통 로직
+	const processFile = async (file: File) => {
+		try {
+			if (isImage(file)) {
+				const convertedFile = await convertToWebp(file);
+				handleUploadMedia(convertedFile, "image");
+			} else if (isVideo(file)) {
+				const toastId = toast.loading("동영상 변환 중...", {
+					position: "top-center",
+				});
+				const convertedFile = await convertToWebm(file);
+				toast.dismiss(toastId);
+				if (convertedFile.size > MAX_VIDEO_SIZE) {
+					toast.error("동영상 파일은 500KB 이하만 업로드 가능합니다.", {
+						position: "top-center",
+					});
+					return;
+				}
+				handleUploadMedia(convertedFile, "video");
+			} else {
+				toast.error("지원하지 않는 파일 형식입니다.", {
+					position: "top-center",
+				});
+			}
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : "알 수 없는 오류";
-			toast.error(`이미지 변환 실패: ${errorMessage}`, {
+			toast.error(`변환 실패: ${errorMessage}`, {
 				position: "top-center",
 			});
 		}
 	};
 
 	// 드롭 핸들러
-	const handleDrop: DragEventHandler<HTMLTextAreaElement> = async (event) => {
+	const handleDrop: DragEventHandler<HTMLTextAreaElement> = (event) => {
 		event.preventDefault();
 		event.stopPropagation();
 
 		const files = Array.from(event.dataTransfer.files);
-		const imageFiles = files.filter((file) => file.type.startsWith("image/"));
-
-		if (imageFiles.length === 0) {
-			toast.error("이미지 형식이 아닙니다!", {
-				position: "top-center",
-			});
-			return;
+		for (const file of files) {
+			processFile(file);
 		}
-
-		imageFiles.forEach(async (imageFile) => {
-			const convertedFile = await convertToWebp(imageFile);
-			await handleUploadImage(convertedFile);
-		});
 	};
 
 	// 붙여넣기 핸들러
-	const handlePaste: ClipboardEventHandler<HTMLTextAreaElement> = async (
-		event,
-	) => {
+	const handlePaste: ClipboardEventHandler<HTMLTextAreaElement> = (event) => {
 		const items = Array.from(event.clipboardData.items);
-		const imageItems = items.filter((item) => item.type.startsWith("image/"));
+		const mediaItems = items.filter(
+			(item) =>
+				item.type.startsWith("image/") || item.type.startsWith("video/"),
+		);
 
-		// 이미지가 아니면 기본 붙여넣기 동작 수행
-		if (imageItems.length === 0) {
+		// 미디어가 아니면 기본 붙여넣기 동작 수행
+		if (mediaItems.length === 0) {
 			return;
 		}
 
 		event.preventDefault();
 		event.stopPropagation();
 
-		imageItems.forEach(async (imageItem) => {
-			const file = imageItem.getAsFile();
+		for (const mediaItem of mediaItems) {
+			const file = mediaItem.getAsFile();
 			if (!file) {
-				toast.error("이미지를 가져올 수 없습니다!", {
+				toast.error("파일을 가져올 수 없습니다.", {
 					position: "top-center",
 				});
-				return;
+				continue;
 			}
-			const convertedFile = await convertToWebp(file);
-			await handleUploadImage(convertedFile);
-		});
+			processFile(file);
+		}
 	};
 
 	return {

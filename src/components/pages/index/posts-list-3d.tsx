@@ -229,7 +229,7 @@ const PostsList3D = () => {
 
 		createCards();
 		createLayoutTargets();
-		transform(targetsRef.current["grid"]);
+		transform(targetsRef.current.grid);
 
 		let animationFrameId: number;
 		const animate = () => {

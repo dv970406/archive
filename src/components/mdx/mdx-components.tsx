@@ -32,6 +32,7 @@ const createHeading = (type: "h1" | "h2" | "h3") => {
 export const mdxComponents = {
 	Callout,
 	ImageGallery,
+	Image: MdxImage,
 	Video: MdxVideo,
 	a: ({ href, children }: { href?: string; children: ReactNode }) => (
 		<Link href={href || "#"} rel="noopener noreferrer" target="_blank">
@@ -52,33 +53,4 @@ export const mdxComponents = {
 	h1: createHeading("h1"),
 	h2: createHeading("h2"),
 	h3: createHeading("h3"),
-	// p: ({ children }: { children: ReactNode }) => (
-	// 	<p className="mb-4 text-muted-foreground leading-relaxed text-pretty">
-	// 		{children}
-	// 	</p>
-	// ),
-	// ul: ({ children }: { children: ReactNode }) => (
-	// 	<ul className="list-disc list-inside mb-4 space-y-2">{children}</ul>
-	// ),
-	// ol: ({ children }: { children: ReactNode }) => (
-	// 	<ol className="list-decimal list-inside mb-4 space-y-2">{children}</ol>
-	// ),
-	// li: ({ children }: { children: ReactNode }) => (
-	// 	<li className="text-muted-foreground">{children}</li>
-	// ),
-	// code: ({ children }: { children: ReactNode }) => (
-	// 	<code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-foreground">
-	// 		{children}
-	// 	</code>
-	// ),
-	// pre: ({ children }: { children: ReactNode }) => (
-	// 	<pre className="bg-muted p-4 rounded-lg overflow-x-auto mb-4 text-sm">
-	// 		<code className="font-mono text-foreground">{children}</code>
-	// 	</pre>
-	// ),
-	// blockquote: ({ children }: { children: ReactNode }) => (
-	// 	<blockquote className="border-l-4 border-primary pl-4 py-2 mb-4 italic text-muted-foreground">
-	// 		{children}
-	// 	</blockquote>
-	// ),
 };

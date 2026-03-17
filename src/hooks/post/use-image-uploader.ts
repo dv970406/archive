@@ -35,8 +35,8 @@ export const useImageUploader = ({ postId }: IUseImageUploaderProps) => {
 				onSuccess: (receivedData) => {
 					const markdown =
 						mediaType === "video"
-							? `<Video src="${receivedData}" />\n`
-							: `![](${receivedData})\n`;
+							? `<Video src="${receivedData}" width={100} />\n`
+							: `<Image src="${receivedData}" width={100} />\n`;
 					insertTextAtCursor(markdown);
 				},
 				onError: (error) => {

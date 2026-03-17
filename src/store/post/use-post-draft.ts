@@ -121,3 +121,13 @@ export const useSetSlug = () => {
 	const setSlug = usePostStore((store) => store.actions.setSlug);
 	return setSlug;
 };
+
+// 렌더 없이 content 변경 감지 (MdxPreview용)
+export const subscribeContent = (callback: (content: string) => void) =>
+	usePostStore.subscribe((state, prevState) => {
+		if (state.postDraft.content !== prevState.postDraft.content) {
+			callback(state.postDraft.content);
+		}
+	});
+
+export const getContent = () => usePostStore.getState().postDraft.content;

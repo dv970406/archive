@@ -29,7 +29,7 @@ const MdxVideo = ({ src, alt, width }: MdxVideoProps) => {
 			video.muted = true;
 			video.playsInline = true;
 			video.preload = "metadata";
-			video.className = "w-full rounded-lg my-6";
+			video.className = "w-full rounded-lg";
 			videoCache.set(src, video);
 		}
 
@@ -58,7 +58,7 @@ const MdxVideo = ({ src, alt, width }: MdxVideoProps) => {
 	if (!src) return null;
 
 	const videoElement = (
-		<figure className="shrink-0 m-0">
+		<figure>
 			<div ref={containerRef} />
 			{alt && <figcaption className="text-center">{alt}</figcaption>}
 		</figure>

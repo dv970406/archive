@@ -1,0 +1,4 @@
+/* prose가 video에 margin 2em을 기본값으로 부여하는 현상을 위해 덮어쓰기  */
+video {
+	margin: 0;
+}

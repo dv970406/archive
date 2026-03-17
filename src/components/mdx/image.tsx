@@ -13,14 +13,14 @@ const MdxImage = ({ src, alt, width }: MdxImageProps) => {
 	if (!src) return null;
 
 	const imageElement = (
-		<figure className="shrink-0 m-0">
+		<figure>
 			<Image
 				src={src}
 				alt={alt || ""}
 				width={0}
 				height={0}
 				sizes="100vw"
-				className="w-full h-auto object-cover rounded-lg my-6 block"
+				className="w-full h-auto object-cover rounded-lg block"
 			/>
 			{alt && <figcaption className="text-center">{alt}</figcaption>}
 		</figure>

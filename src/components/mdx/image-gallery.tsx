@@ -1,25 +1,14 @@
-import { Children, type ReactNode } from "react";
-import { cn } from "@/lib/style/tailwind";
+import type { ReactNode } from "react";
 import MdxImage from "./image";
+import ImageGalleryClient from "./image-gallery-client";
 
 interface ImageGalleryProps {
 	children: ReactNode;
 }
 
+// 서버 컴포넌트로 유지 — RSC 컨텍스트에서 static property(.Image)가 보존됨
 const ImageGallery = ({ children }: ImageGalleryProps) => {
-	const childCount = Children.count(children);
-	const isScrollable = childCount > 2;
-	return (
-		<div
-			className={cn("gap-4 my-6 pb-2 w-full", {
-				"grid grid-cols-2": !isScrollable,
-				"flex [&>figure]:w-1/2 overflow-x-scroll [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-thumb]:bg-primary [&::-webkit-scrollbar-track]:bg-muted":
-					isScrollable,
-			})}
-		>
-			{children}
-		</div>
-	);
+	return <ImageGalleryClient>{children}</ImageGalleryClient>;
 };
 
 ImageGallery.Image = MdxImage;

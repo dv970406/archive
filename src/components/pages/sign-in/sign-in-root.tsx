@@ -30,7 +30,7 @@ const SignInRoot = () => {
 	};
 
 	return (
-		<div style={{ padding: "2rem" }}>
+		<div className="p-8">
 			<h1>Admin Login</h1>
 			<form onSubmit={handleLogin}>
 				<div>

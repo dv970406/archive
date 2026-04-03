@@ -28,7 +28,7 @@ const MdxImage = ({ src, alt, width, onClick }: MdxImageProps) => {
 			<button
 				type="button"
 				aria-label={`${alt || "이미지"} 확대 보기`}
-				className="block w-full cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+				className="cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
 				onClick={handleClick}
 			>
 				<Image
@@ -37,10 +37,12 @@ const MdxImage = ({ src, alt, width, onClick }: MdxImageProps) => {
 					width={0}
 					height={0}
 					sizes="100vw"
-					className="w-full h-auto object-cover rounded-lg block"
+					className="w-full h-auto object-cover rounded-lg not-prose"
 				/>
 			</button>
-			{alt && <figcaption className="text-center">{alt}</figcaption>}
+			{alt && (
+				<figcaption className="text-center font-bold mt-1">{alt}</figcaption>
+			)}
 		</figure>
 	);
 

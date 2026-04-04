@@ -5,16 +5,29 @@ import Image from "next/image";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 
-interface ImageLightboxProps {
+type BaseLightboxProps = {
 	src: string;
 	alt?: string;
-	// gallery 모드일 때만 전달
-	onPrev?: () => void;
-	onNext?: () => void;
-	hasPrev?: boolean;
-	hasNext?: boolean;
 	onClose: () => void;
-}
+};
+
+// 단일 이미지 모드 — gallery props 미전달
+type SingleImageLightboxProps = BaseLightboxProps & {
+	onPrev?: never;
+	onNext?: never;
+	hasPrev?: never;
+	hasNext?: never;
+};
+
+// 갤러리 모드 — gallery props 필수
+type GalleryLightboxProps = BaseLightboxProps & {
+	onPrev: () => void;
+	onNext: () => void;
+	hasPrev: boolean;
+	hasNext: boolean;
+};
+
+type ImageLightboxProps = SingleImageLightboxProps | GalleryLightboxProps;
 
 const ImageLightbox = ({
 	src,

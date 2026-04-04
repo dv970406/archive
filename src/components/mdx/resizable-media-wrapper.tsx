@@ -7,6 +7,10 @@ import { cn } from "@/lib/style/tailwind";
 const MIN_WIDTH = 10;
 const MAX_WIDTH = 100;
 
+/** 너비를 MIN_WIDTH ~ MAX_WIDTH 범위로 제한 */
+const clampWidth = (value: number) =>
+	Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, value));
+
 interface ResizableMediaWrapperProps {
 	src: string;
 	width: number;
@@ -50,10 +54,7 @@ const ResizableMediaWrapper = ({
 			const deltaPercent = Math.round(
 				((e.clientX - dragStartXRef.current) / containerWidth) * 100,
 			);
-			const next = Math.min(
-				MAX_WIDTH,
-				Math.max(MIN_WIDTH, dragStartWidthRef.current + deltaPercent),
-			);
+			const next = clampWidth(dragStartWidthRef.current + deltaPercent);
 			// 값이 동일하면 re-render 생략 (경계값 도달 시 불필요한 렌더 방지)
 			if (next === displayWidthRef.current) return;
 			displayWidthRef.current = next;

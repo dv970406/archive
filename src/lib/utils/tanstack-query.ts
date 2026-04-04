@@ -12,6 +12,7 @@ export const getQueryClient = cache(
 				queries: {
 					retry: 0,
 					staleTime: 1000 * 60,
+					gcTime: 1000 * 60 * 10,
 					refetchOnMount: false,
 					refetchOnReconnect: false,
 					refetchOnWindowFocus: false,

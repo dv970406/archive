@@ -29,5 +29,14 @@ export const generateSummary = async (content: string) => {
 		temperature: 0,
 	});
 
-	return summaryResponse;
+	// 응답에서 텍스트 블록만 안전하게 추출
+	const textBlock = summaryResponse.content.find(
+		(block) => block.type === "text",
+	);
+
+	if (!textBlock || textBlock.type !== "text") {
+		throw new Error("AI 응답에서 텍스트를 찾을 수 없습니다.");
+	}
+
+	return textBlock.text;
 };

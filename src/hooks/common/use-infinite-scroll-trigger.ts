@@ -28,9 +28,7 @@ export const useInfiniteScrollTrigger = ({
 		}
 
 		return () => {
-			if (currentElement) {
-				observer.unobserve(currentElement);
-			}
+			observer.disconnect();
 		};
 	}, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 

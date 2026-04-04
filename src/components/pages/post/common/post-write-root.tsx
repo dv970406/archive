@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { usePostEditorTabs } from "@/hooks/post/use-post-editor-tabs";
-import { usePublishPost } from "@/hooks/post/use-publish-post";
+import { usePublishPostWithAISummary } from "@/hooks/post/use-publish-post";
 import { cn } from "@/lib/style/tailwind";
 import EditorController from "./editor-controller";
 import MdxPreview from "./mdx-preview";
@@ -13,10 +13,16 @@ interface IPostWriteRoot {
 	type: "CREATE" | "UPDATE";
 }
 const PostWriteRoot = ({ type }: IPostWriteRoot) => {
-	const { handleActiveTab, isPreviewTab, isSplitTab, isWriteTab } =
-		usePostEditorTabs();
+	const {
+		handleWriteTab,
+		handleSplitTab,
+		handlePreviewTab,
+		isPreviewTab,
+		isSplitTab,
+		isWriteTab,
+	} = usePostEditorTabs();
 
-	const { handlePublishPost, isPending } = usePublishPost({
+	const { handlePublishPost, isPending } = usePublishPostWithAISummary({
 		type,
 	});
 
@@ -32,7 +38,9 @@ const PostWriteRoot = ({ type }: IPostWriteRoot) => {
 							isPreviewTab={isPreviewTab}
 							isWriteTab={isWriteTab}
 							isSplitTab={isSplitTab}
-							handleActiveTab={handleActiveTab}
+							handleWriteTab={handleWriteTab}
+							handleSplitTab={handleSplitTab}
+							handlePreviewTab={handlePreviewTab}
 						/>
 						<Button
 							type="button"

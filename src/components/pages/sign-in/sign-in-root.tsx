@@ -3,6 +3,7 @@
 import { type FormEvent, useState } from "react";
 import { toast } from "sonner";
 import { useSignInWithPasswordMutation } from "@/hooks/mutations/auth";
+import { ROUTES } from "@/lib/constant/routes";
 
 const SignInRoot = () => {
 	const [email, setEmail] = useState("");
@@ -16,8 +17,8 @@ const SignInRoot = () => {
 			{ email, password },
 			{
 				onSuccess: ({ user }) => {
-					if (user.id) {
-						location.replace("/");
+					if (user?.id) {
+						location.replace(ROUTES.HOME);
 					}
 				},
 				onError: () => {

@@ -3,14 +3,15 @@
 import { Box, List } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { ROUTES } from "@/lib/constant/routes";
 
 const PostsListTypeToggle = () => {
 	const { replace } = useRouter();
 	const pathname = usePathname();
-	const is3D = pathname === "/3D";
+	const is3D = pathname === ROUTES.THREE_D;
 
 	const handlePostsListType = () => {
-		replace(is3D ? "/" : "/3D");
+		replace(is3D ? ROUTES.HOME : ROUTES.THREE_D);
 	};
 
 	return (

@@ -24,7 +24,7 @@ export async function GET() {
 				: "";
 
 			const thumbnailTag = post.thumbnail
-				? `<enclosure url="${escapeXml(post.thumbnail)}" type="${getMimeType(post.thumbnail)}" length="0" />`
+				? `<enclosure url="${escapeXml(post.thumbnail)}" type="${inferMimeTypeFromUrl(post.thumbnail)}" length="0" />`
 				: "";
 
 			return `
@@ -70,9 +70,11 @@ function escapeXml(str: string): string {
 		.replace(/'/g, "&apos;");
 }
 
-function getMimeType(url: string): string {
+const DEFAULT_IMAGE_MIME_TYPE = "image/webp";
+
+function inferMimeTypeFromUrl(url: string): string {
 	if (url.endsWith(".png")) return "image/png";
 	if (url.endsWith(".jpg") || url.endsWith(".jpeg")) return "image/jpeg";
 	if (url.endsWith(".gif")) return "image/gif";
-	return "image/webp";
+	return DEFAULT_IMAGE_MIME_TYPE;
 }

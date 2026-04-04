@@ -6,13 +6,13 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAllCategories } from "@/hooks/queries/category";
-import { usePostDraft, useSetCategory } from "@/store/post/use-post-draft";
+import { usePostDraftField, useSetCategory } from "@/store/post/use-post-draft";
 import type { Post } from "@/types/post";
 
 const CategoryDropdown = () => {
 	const { data: allCategories } = useAllCategories();
 	const setCategory = useSetCategory();
-	const { category } = usePostDraft();
+	const category = usePostDraftField("category");
 
 	const handleClickCategory = (category: Post["category"]) => () => {
 		setCategory(category);

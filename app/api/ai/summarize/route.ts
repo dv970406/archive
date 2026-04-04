@@ -1,4 +1,3 @@
-import type { TextBlock } from "@anthropic-ai/sdk/resources";
 import { type NextRequest, NextResponse } from "next/server";
 import { generateSummary } from "@/api/ai";
 
@@ -15,9 +14,14 @@ export async function POST(request: NextRequest) {
 		);
 	}
 
-	const { content: summarizedContent } = await generateSummary(content);
+	try {
+		const summarizedText = await generateSummary(content);
 
-	const { text: summarizedText } = summarizedContent[0] as TextBlock;
-
-	return NextResponse.json(summarizedText);
+		return NextResponse.json(summarizedText);
+	} catch {
+		return NextResponse.json(
+			{ error: "AI 요약 생성에 실패했습니다." },
+			{ status: 500 },
+		);
+	}
 }

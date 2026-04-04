@@ -3,24 +3,12 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useGetPostBySlug } from "@/hooks/queries/post";
-import {
-	useSetCategory,
-	useSetContent,
-	useSetPostId,
-	useSetSlug,
-	useSetThumbnail,
-	useSetTitle,
-} from "@/store/post/use-post-draft";
+import { useSetDraft } from "@/store/post/use-post-draft";
 import PostWriteRoot from "../common/post-write-root";
 
 const PostUpdateRoot = () => {
 	// 수정할 post를 가져와서 편집할 수 있도록 store에 반영하는 코드
-	const setPostId = useSetPostId();
-	const setTitle = useSetTitle();
-	const setContent = useSetContent();
-	const setCategory = useSetCategory();
-	const setThumbnail = useSetThumbnail();
-	const setSlug = useSetSlug();
+	const setDraft = useSetDraft();
 
 	const { slug } = useParams();
 	const { data: post, isPending: isPostPending } = useGetPostBySlug(
@@ -34,24 +22,15 @@ const PostUpdateRoot = () => {
 			replace(`/post/${slug}`);
 			return;
 		}
-		setPostId(post.id);
-		setTitle(post.title);
-		setContent(post.content);
-		setCategory(post.category);
-		setThumbnail(post.thumbnail);
-		setSlug(post.slug);
-	}, [
-		slug,
-		isPostPending,
-		post,
-		replace,
-		setCategory,
-		setContent,
-		setPostId,
-		setThumbnail,
-		setTitle,
-		setSlug,
-	]);
+		setDraft({
+			id: post.id,
+			title: post.title,
+			content: post.content,
+			category: post.category,
+			thumbnail: post.thumbnail,
+			slug: post.slug,
+		});
+	}, [slug, isPostPending, post, replace, setDraft]);
 
 	return <PostWriteRoot type="UPDATE" />;
 };

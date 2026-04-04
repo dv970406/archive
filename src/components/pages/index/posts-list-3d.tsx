@@ -18,6 +18,34 @@ import { parseMarkdownToPlainText } from "@/lib/utils/markdown";
 import { formatTimeAgo } from "@/lib/utils/time";
 import type { Post } from "@/types/post";
 
+/** 3D 레이아웃 배치에 사용되는 상수 */
+const LAYOUT_CONFIG = {
+	// Grid
+	GRID_COL_COUNT: 4,
+	GRID_COL_SPACING: 350,
+	GRID_COL_OFFSET: 525,
+	GRID_ROW_COUNT: 3,
+	GRID_ROW_SPACING: 400,
+	GRID_ROW_OFFSET: 400,
+	GRID_DEPTH_SPACING: 800,
+	GRID_DEPTH_OFFSET: 400,
+	// Sphere
+	SPHERE_RADIUS: 900,
+	// Helix
+	HELIX_THETA_STEP: 0.35,
+	HELIX_Y_STEP: 35,
+	HELIX_Y_OFFSET: 400,
+	HELIX_RADIUS: 900,
+	// Wave
+	WAVE_COL_COUNT: 6,
+	WAVE_COL_SPACING: 350,
+	WAVE_COL_OFFSET: 875,
+	WAVE_DEPTH_SPACING: 450,
+	WAVE_DEPTH_OFFSET: 450,
+	WAVE_SIN_FREQUENCY: 0.5,
+	WAVE_AMPLITUDE: 250,
+} as const;
+
 interface IPostsList3DProps {
 	posts: IPostItem[];
 }
@@ -137,9 +165,22 @@ const PostsList3D = () => {
 		// GRID
 		for (let i = 0; i < objects.length; i++) {
 			const object = new THREE.Object3D();
-			object.position.x = (i % 4) * 350 - 525;
-			object.position.y = -(Math.floor(i / 4) % 3) * 400 + 400;
-			object.position.z = Math.floor(i / 12) * 800 - 400;
+			object.position.x =
+				(i % LAYOUT_CONFIG.GRID_COL_COUNT) * LAYOUT_CONFIG.GRID_COL_SPACING -
+				LAYOUT_CONFIG.GRID_COL_OFFSET;
+			object.position.y =
+				-(
+					Math.floor(i / LAYOUT_CONFIG.GRID_COL_COUNT) %
+					LAYOUT_CONFIG.GRID_ROW_COUNT
+				) *
+					LAYOUT_CONFIG.GRID_ROW_SPACING +
+				LAYOUT_CONFIG.GRID_ROW_OFFSET;
+			object.position.z =
+				Math.floor(
+					i / (LAYOUT_CONFIG.GRID_COL_COUNT * LAYOUT_CONFIG.GRID_ROW_COUNT),
+				) *
+					LAYOUT_CONFIG.GRID_DEPTH_SPACING -
+				LAYOUT_CONFIG.GRID_DEPTH_OFFSET;
 			targets.grid.push(object);
 		}
 
@@ -149,7 +190,11 @@ const PostsList3D = () => {
 			const phi = Math.acos(-1 + (2 * i) / l);
 			const theta = Math.sqrt(l * Math.PI) * phi;
 			const object = new THREE.Object3D();
-			object.position.setFromSphericalCoords(900, phi, theta);
+			object.position.setFromSphericalCoords(
+				LAYOUT_CONFIG.SPHERE_RADIUS,
+				phi,
+				theta,
+			);
 			vector.copy(object.position).multiplyScalar(2);
 			object.lookAt(vector);
 			targets.sphere.push(object);
@@ -157,10 +202,15 @@ const PostsList3D = () => {
 
 		// HELIX
 		for (let i = 0, l = objects.length; i < l; i++) {
-			const theta = i * 0.35 + Math.PI;
-			const y = -(i * 35) + 400;
+			const theta = i * LAYOUT_CONFIG.HELIX_THETA_STEP + Math.PI;
+			const y =
+				-(i * LAYOUT_CONFIG.HELIX_Y_STEP) + LAYOUT_CONFIG.HELIX_Y_OFFSET;
 			const object = new THREE.Object3D();
-			object.position.setFromCylindricalCoords(900, theta, y);
+			object.position.setFromCylindricalCoords(
+				LAYOUT_CONFIG.HELIX_RADIUS,
+				theta,
+				y,
+			);
 			vector.x = object.position.x * 2;
 			vector.y = object.position.y;
 			vector.z = object.position.z * 2;
@@ -171,9 +221,16 @@ const PostsList3D = () => {
 		// WAVE
 		for (let i = 0; i < objects.length; i++) {
 			const object = new THREE.Object3D();
-			const x = (i % 6) * 350 - 875;
-			const z = Math.floor(i / 6) * 450 - 450;
-			const y = Math.sin(i * 0.5) * 250;
+			const x =
+				(i % LAYOUT_CONFIG.WAVE_COL_COUNT) * LAYOUT_CONFIG.WAVE_COL_SPACING -
+				LAYOUT_CONFIG.WAVE_COL_OFFSET;
+			const z =
+				Math.floor(i / LAYOUT_CONFIG.WAVE_COL_COUNT) *
+					LAYOUT_CONFIG.WAVE_DEPTH_SPACING -
+				LAYOUT_CONFIG.WAVE_DEPTH_OFFSET;
+			const y =
+				Math.sin(i * LAYOUT_CONFIG.WAVE_SIN_FREQUENCY) *
+				LAYOUT_CONFIG.WAVE_AMPLITUDE;
 			object.position.set(x, y, z);
 			targets.wave.push(object);
 		}

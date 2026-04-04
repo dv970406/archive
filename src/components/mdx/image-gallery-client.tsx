@@ -19,6 +19,15 @@ interface MdxImageElement {
 	alt?: string;
 }
 
+/** src 속성을 가진 유효한 React 엘리먼트인지 검사하는 타입 가드 */
+const isMdxImageElement = (
+	child: ReactNode,
+): child is React.ReactElement<{ src: string; alt?: string }> =>
+	isValidElement(child) &&
+	typeof child.props === "object" &&
+	child.props !== null &&
+	"src" in child.props;
+
 interface ImageGalleryClientProps {
 	children: ReactNode;
 }
@@ -26,17 +35,10 @@ interface ImageGalleryClientProps {
 /** children에서 MdxImage props(src, alt)를 추출 */
 const extractImageData = (children: ReactNode): MdxImageElement[] => {
 	return Children.toArray(children)
-		.filter(
-			(child) =>
-				isValidElement(child) &&
-				typeof child.props === "object" &&
-				child.props !== null &&
-				"src" in child.props,
-		)
+		.filter(isMdxImageElement)
 		.map((child) => {
-			const props = (child as React.ReactElement<{ src: string; alt?: string }>)
-				.props;
-			return { src: props.src, alt: props.alt };
+			const { src, alt } = child.props;
+			return { src, alt };
 		});
 };
 
@@ -62,12 +64,7 @@ const ImageGalleryClient = ({ children }: ImageGalleryClientProps) => {
 	// 각 MdxImage에 onClick을 주입 — 이미지 전용 인덱스를 사용해 images 배열과 동기화
 	let imageIndex = 0;
 	const enhancedChildren = Children.map(children, (child) => {
-		if (
-			isValidElement(child) &&
-			typeof child.props === "object" &&
-			child.props !== null &&
-			"src" in child.props
-		) {
+		if (isMdxImageElement(child)) {
 			const currentIndex = imageIndex++;
 			const props = (
 				child as React.ReactElement<{

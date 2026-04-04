@@ -1,9 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { useImageUploader } from "@/hooks/post/use-image-uploader";
-import type { IUsePublishPostReturn } from "@/hooks/post/use-publish-post";
+import type { IUsePublishPostWithAISummaryReturn } from "@/hooks/post/use-publish-post";
 import { TEXTAREA_POST_EDITOR_ID } from "@/lib/constant/element-id";
 import {
-	usePostDraft,
+	usePostDraftField,
 	useSetContent,
 	useSetSlug,
 	useSetTitle,
@@ -11,14 +11,17 @@ import {
 import CategoryDropdown from "./category-dropdown";
 import ThumbnailHandler from "./thumbnail-handler";
 
-type IPostEditorProps = Pick<IUsePublishPostReturn, "isPending">;
+type IPostEditorProps = Pick<IUsePublishPostWithAISummaryReturn, "isPending">;
 
 const PostEditor = ({ isPending }: IPostEditorProps) => {
 	const setTitle = useSetTitle();
 	const setContent = useSetContent();
 	const setSlug = useSetSlug();
 
-	const { content, title, id, slug } = usePostDraft();
+	const content = usePostDraftField("content");
+	const title = usePostDraftField("title");
+	const id = usePostDraftField("id");
+	const slug = usePostDraftField("slug");
 	const { handleDragOver, handleDrop, handlePaste } = useImageUploader({
 		postId: id,
 	});

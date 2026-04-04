@@ -4,30 +4,29 @@ import { cn } from "@/lib/style/tailwind";
 
 type IEditorController = Pick<
 	IUsePostEditorTabsReturn,
-	"isPreviewTab" | "isSplitTab" | "isWriteTab" | "handleActiveTab"
+	| "isPreviewTab"
+	| "isSplitTab"
+	| "isWriteTab"
+	| "handleWriteTab"
+	| "handleSplitTab"
+	| "handlePreviewTab"
 >;
 const EditorController = ({
 	isPreviewTab,
 	isSplitTab,
 	isWriteTab,
-	handleActiveTab,
+	handleWriteTab,
+	handleSplitTab,
+	handlePreviewTab,
 }: IEditorController) => {
 	return (
 		<>
 			{/* 탭 전환 */}
 			<div className="flex rounded-lg p-1">
+				<TabButton onClick={handleWriteTab} text="작성" isActive={isWriteTab} />
+				<TabButton onClick={handleSplitTab} text="분할" isActive={isSplitTab} />
 				<TabButton
-					onClick={handleActiveTab("write")}
-					text="작성"
-					isActive={isWriteTab}
-				/>
-				<TabButton
-					onClick={handleActiveTab("split")}
-					text="분할"
-					isActive={isSplitTab}
-				/>
-				<TabButton
-					onClick={handleActiveTab("preview")}
+					onClick={handlePreviewTab}
 					text="미리보기"
 					isActive={isPreviewTab}
 				/>

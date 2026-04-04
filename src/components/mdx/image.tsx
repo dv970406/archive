@@ -28,7 +28,7 @@ const MdxImage = ({ src, alt, width, onClick }: MdxImageProps) => {
 			<button
 				type="button"
 				aria-label={`${alt || "이미지"} 확대 보기`}
-				className="cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+				className="w-full cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
 				onClick={handleClick}
 			>
 				<Image

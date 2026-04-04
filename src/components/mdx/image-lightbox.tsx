@@ -53,22 +53,14 @@ const ImageLightbox = ({
 			role="dialog"
 			aria-modal="true"
 			aria-label={alt || "이미지 확대 보기"}
-			className="fixed inset-0 z-50 flex items-center justify-center"
+			className="fixed z-100 inset-0 flex items-center justify-center w-full h-full bg-black/85 backdrop-blur-sm"
 		>
-			{/* 백드롭 — 클릭 시 닫기 (button으로 접근성 확보) */}
-			<button
-				type="button"
-				aria-label="닫기"
-				className="absolute inset-0 w-full h-full bg-black/85 backdrop-blur-sm cursor-default"
-				onClick={onClose}
-			/>
-
 			{/* 닫기 버튼 */}
 			<button
 				type="button"
 				aria-label="닫기"
 				onClick={onClose}
-				className="absolute top-4 right-4 z-20 flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+				className="absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
 			>
 				<X size={20} />
 			</button>
@@ -80,24 +72,20 @@ const ImageLightbox = ({
 					aria-label="이전 이미지"
 					onClick={onPrev}
 					disabled={!hasPrev}
-					className="absolute left-4 z-20 flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+					className="absolute z-10 left-4 flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
 				>
 					<ChevronLeft size={24} />
 				</button>
 			)}
 
-			{/* 이미지 — z-10으로 백드롭 위에 표시 */}
-			<div className="relative z-10 max-w-[80vw] max-h-[90vh] pointer-events-none">
-				<Image
-					src={src}
-					alt={alt || ""}
-					width={0}
-					height={0}
-					sizes="80vw"
-					className="w-auto h-auto max-w-[80vw] max-h-[85vh] object-contain rounded-lg"
-				/>
-				{alt && <p className="mt-2 text-center text-sm text-white/70">{alt}</p>}
-			</div>
+			<Image
+				src={src}
+				alt={alt || ""}
+				width={0}
+				height={0}
+				sizes="100vw"
+				className="w-full h-full max-w-[90vw] max-h-[95vh] object-contain rounded-lg"
+			/>
 
 			{/* 다음 버튼 */}
 			{isGalleryMode && (
@@ -106,7 +94,7 @@ const ImageLightbox = ({
 					aria-label="다음 이미지"
 					onClick={onNext}
 					disabled={!hasNext}
-					className="absolute right-4 z-20 flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+					className="absolute z-10 right-4 flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
 				>
 					<ChevronRight size={24} />
 				</button>

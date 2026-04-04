@@ -24,6 +24,8 @@ export interface IPostStore {
 		setCategory: (category: IPostDraft["category"]) => void;
 		setThumbnail: (thumbnail: IPostDraft["thumbnail"]) => void;
 		setSlug: (slug: IPostDraft["slug"]) => void;
+		// 여러 필드를 한 번에 설정 — 개별 setter 6번 호출 대비 리렌더링 1회로 감소
+		setDraft: (draft: IPostDraft) => void;
 	};
 }
 
@@ -84,12 +86,23 @@ const usePostStore = create<IPostStore>((set) => ({
 				},
 			}));
 		},
+		setDraft: (draft) => {
+			set((prev) => ({
+				...prev,
+				postDraft: { ...prev.postDraft, ...draft },
+			}));
+		},
 	},
 }));
 
 export const usePostDraft = () => {
 	const postDraft = usePostStore((store) => store.postDraft);
 	return postDraft;
+};
+
+// 필드별 선택적 구독 — 해당 필드 변경 시에만 리렌더링
+export const usePostDraftField = <K extends keyof IPostDraft>(field: K) => {
+	return usePostStore((store) => store.postDraft[field]);
 };
 
 export const useSetPostId = () => {
@@ -120,6 +133,11 @@ export const useSetThumbnail = () => {
 export const useSetSlug = () => {
 	const setSlug = usePostStore((store) => store.actions.setSlug);
 	return setSlug;
+};
+
+export const useSetDraft = () => {
+	const setDraft = usePostStore((store) => store.actions.setDraft);
+	return setDraft;
 };
 
 // 렌더 없이 content 변경 감지 (MdxPreview용)

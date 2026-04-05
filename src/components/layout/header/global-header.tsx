@@ -21,7 +21,12 @@ const GlobalHeader = async () => {
 
 					<nav className="flex items-center gap-6">
 						{/* <NavigationLink href="/" text="글 목록" /> */}
-						{/* <NavigationLink href="/career" text="커리어" /> */}
+						<Link
+							href="/career"
+							className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+						>
+							커리어
+						</Link>
 						<PostsListTypeToggle />
 						<Link
 							href="/rss.xml"

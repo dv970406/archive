@@ -1,5 +1,4 @@
 import { Github, Mail } from "lucide-react";
-import Link from "next/link";
 import type { Person, ProfilePage, WithContext } from "schema-dts";
 import { careerData } from "@/api/career";
 import { Card } from "@/components/ui/card";

@@ -1,5 +1,4 @@
 import { Github, Mail } from "lucide-react";
-import Link from "next/link";
 import type { Person, ProfilePage, WithContext } from "schema-dts";
 import { careerData } from "@/api/career";
 import { Card } from "@/components/ui/card";
@@ -137,12 +136,8 @@ const CareerPage = () => {
 								<ul className="space-y-4">
 									{exp.achievements.map((achievement) => (
 										<li key={achievement}>
-											<Link className="flex gap-2 text-sm group" href={""}>
-												<span className="text-primary">•</span>
-												<span className="group-hover:text-primary transition-colors">
-													{achievement}
-												</span>
-											</Link>
+											<span className="text-primary mr-2">•</span>
+											<span>{achievement}</span>
 										</li>
 									))}
 								</ul>

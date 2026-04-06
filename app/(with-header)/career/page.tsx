@@ -1,8 +1,12 @@
 import { Github, Mail } from "lucide-react";
 import type { Person, ProfilePage, WithContext } from "schema-dts";
-import { careerData } from "@/api/career";
+import { careerData, type LinkedText } from "@/api/career";
 import { Card } from "@/components/ui/card";
+import { parseLinkedText } from "@/lib/utils/linked-text";
 import JsonLdProvider from "@/provider/jsonld-provider";
+
+const linkClassName =
+	"text-primary underline underline-offset-4 hover:text-primary/80 transition-colors";
 
 const CareerPage = () => {
 	const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
@@ -135,9 +139,37 @@ const CareerPage = () => {
 								<p className="text-muted-foreground mb-4">{exp.description}</p>
 								<ul className="space-y-4">
 									{exp.achievements.map((achievement) => (
-										<li key={achievement}>
+										<li key={achievement.text}>
 											<span className="text-primary mr-2">•</span>
-											<span>{achievement}</span>
+											<span>
+												<LinkedTextRenderer item={achievement} />
+											</span>
+											{achievement.details?.length ? (
+												<ul className="mt-2 ml-6 space-y-1">
+													{achievement.details.map((detail) => (
+														<li
+															key={detail.text}
+															className="text-sm text-muted-foreground"
+														>
+															<span className="text-muted-foreground/60 mr-2">
+																•
+															</span>
+															{detail.url ? (
+																<a
+																	href={detail.url}
+																	target="_blank"
+																	rel="noopener noreferrer"
+																	className={linkClassName}
+																>
+																	{detail.text}
+																</a>
+															) : (
+																detail.text
+															)}
+														</li>
+													))}
+												</ul>
+											) : null}
 										</li>
 									))}
 								</ul>
@@ -147,6 +179,37 @@ const CareerPage = () => {
 				</section>
 			</JsonLdProvider>
 		</JsonLdProvider>
+	);
+};
+
+// 텍스트 내 특정 구간을 링크로 치환하여 렌더링
+const LinkedTextRenderer = ({ item }: { item: LinkedText }) => {
+	const { text, links } = item;
+
+	if (!links?.length) {
+		return <>{text}</>;
+	}
+
+	const parts = parseLinkedText(text, links);
+
+	return (
+		<>
+			{parts.map((part) =>
+				part.type === "text" ? (
+					<span key={part.id}>{part.value}</span>
+				) : (
+					<a
+						key={part.id}
+						href={part.url}
+						target="_blank"
+						rel="noopener noreferrer"
+						className={linkClassName}
+					>
+						{part.text}
+					</a>
+				),
+			)}
+		</>
 	);
 };
 

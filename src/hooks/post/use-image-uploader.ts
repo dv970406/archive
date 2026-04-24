@@ -7,8 +7,6 @@ import { convertToWebp } from "@/lib/utils/webp-converter";
 import { useUploadImageMutation } from "../mutations/image";
 import { useTextareaController } from "./use-textarea-controller";
 
-const MAX_VIDEO_SIZE = 500 * 1024; // 500KB
-
 interface IUseImageUploaderProps {
 	postId: number;
 }
@@ -50,22 +48,16 @@ export const useImageUploader = ({ postId }: IUseImageUploaderProps) => {
 
 	// 파일 처리 공통 로직
 	const processFile = async (file: File) => {
+		let loadingToastId: string | number | null = null;
 		try {
 			if (isImage(file)) {
 				const convertedFile = await convertToWebp(file);
 				handleUploadMedia(convertedFile, "image");
 			} else if (isVideo(file)) {
-				const toastId = toast.loading("동영상 변환 중...", {
+				loadingToastId = toast.loading("동영상 변환 중...", {
 					position: "top-center",
 				});
 				const convertedFile = await convertToWebm(file);
-				toast.dismiss(toastId);
-				if (convertedFile.size > MAX_VIDEO_SIZE) {
-					toast.error("동영상 파일은 500KB 이하만 업로드 가능합니다.", {
-						position: "top-center",
-					});
-					return;
-				}
 				handleUploadMedia(convertedFile, "video");
 			} else {
 				toast.error("지원하지 않는 파일 형식입니다.", {
@@ -78,6 +70,8 @@ export const useImageUploader = ({ postId }: IUseImageUploaderProps) => {
 			toast.error(`변환 실패: ${errorMessage}`, {
 				position: "top-center",
 			});
+		} finally {
+			if (loadingToastId !== null) toast.dismiss(loadingToastId);
 		}
 	};
 

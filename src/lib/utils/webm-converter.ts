@@ -258,7 +258,7 @@ interface IConvertOptions {
 	maxBytes?: number;
 }
 
-const DEFAULT_MAX_BYTES = 500 * 1024;
+const DEFAULT_MAX_BYTES = 2 * 1024 * 1024;
 const SAFETY_RATIO = 0.8; // 컨테이너 오버헤드 여유
 const MAX_ATTEMPTS = 3;
 

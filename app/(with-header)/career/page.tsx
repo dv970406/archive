@@ -122,8 +122,8 @@ const CareerPage = () => {
 				</section>
 
 				{/* 경력 섹션 */}
-				<section>
-					<h2 className="text-2xl font-bold mb-6">Work Experience</h2>
+				<section className="mb-16">
+					<h2 className="text-2xl font-bold mb-6">경력</h2>
 					<div className="space-y-8">
 						{careerData.experiences.map((exp) => (
 							<Card key={exp.company} className="p-6">
@@ -176,6 +176,32 @@ const CareerPage = () => {
 							</Card>
 						))}
 					</div>
+				</section>
+
+				{/* 기타 섹션 */}
+				<section>
+					<h2 className="text-2xl font-bold mb-6">기타</h2>
+					<Card className="p-6">
+						<ul className="space-y-3">
+							{careerData.others.map((item) => (
+								<li key={item.text}>
+									<span className="text-primary mr-2">•</span>
+									{item.url ? (
+										<a
+											href={item.url}
+											target="_blank"
+											rel="noopener noreferrer"
+											className={linkClassName}
+										>
+											{item.text}
+										</a>
+									) : (
+										<span>{item.text}</span>
+									)}
+								</li>
+							))}
+						</ul>
+					</Card>
 				</section>
 			</JsonLdProvider>
 		</JsonLdProvider>

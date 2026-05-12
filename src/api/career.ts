@@ -85,14 +85,12 @@ export const careerData: CareerData = {
 					text: "서비스 내 주요 페이지 성능 개선",
 					details: [
 						{
-							text: "피드 페이지 무한 스크롤 성능 최적화: 메모리 220MB → 80MB, CPU 100% → 20%로 감소",
+							text: "[피드 페이지] 무한 스크롤 성능 최적화: 메모리 220MB → 80MB, CPU 100% → 20%로 감소",
 							url: "https://www.choiseongjun.com/post/feed-performance-improvement-story",
 						},
 						{
-							text: "질문상세 페이지에서 SSR 시 하이드레이션되고 있는 데이터를 최적화하여 문서크기 10KB 감소",
-						},
-						{
-							text: "서비스 내 주요 비즈니스 데이터 탐색 로직에서 O(n)이 걸리던 부분을 O(1)로 자료구조 개선",
+							text: "[질문상세 페이지] SSR 최적화: TTFB 70% 감소, HTML 문서크기 7KB~10KB 감소",
+							url: "https://www.choiseongjun.com/post/how-can-i-optimize-ssr",
 						},
 					],
 				},
@@ -100,13 +98,13 @@ export const careerData: CareerData = {
 					text: "SEO 개선 주도",
 					details: [
 						{
-							text: "재직 기간 중 회사 웹 MAU 1,200만 달성 (SEO 개선이 한 축으로 기여)",
+							text: "재직 기간 중 회사 웹 MAU 1,200만 달성",
 						},
 						{
 							text: "기획/디자인 단계부터 SEO 관점 도입 — 페이지 구성에 내부링크 영역 강화를 제안하여 반영",
 						},
 						{
-							text: "리스트 페이지를 페이지별 인덱싱 가능하도록 개선하여 검색엔진 크롤링 커버리지 확대",
+							text: "리스트 페이지에서 페이지네이션별로 인덱싱 가능하도록 개선하여 검색엔진 크롤링 커버리지 확대",
 						},
 					],
 				},
@@ -129,6 +127,7 @@ export const careerData: CareerData = {
 						},
 						{
 							text: "나뉘어 있던 모달/팝업 로직을 공통화하여 유지보수성 향상 및 DX 향상",
+							url: "https://www.choiseongjun.com/post/how-to-close-modal-in-mobile",
 						},
 						{
 							text: "pages router -> app router 마이그레이션을 통해 캐싱 전략 개선 (진행중)",
@@ -157,9 +156,6 @@ export const careerData: CareerData = {
 					details: [
 						{
 							text: "PR 생성 및 PR 리뷰 등 반복적 워크플로우를 자동화하여 협업 피로 감소 및 리뷰 퀄리티 향상",
-						},
-						{
-							text: "피그마 MCP를 통한 에셋 업로드 자동화 및 에이전트의 분석/계획 단계 퀄리티 강화 (진행중)",
 						},
 					],
 				},

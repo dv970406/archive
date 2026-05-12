@@ -16,6 +16,9 @@ const videoCache = new Map<string, HTMLVideoElement>();
 const MdxVideo = ({ src, alt, width }: MdxVideoProps) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const videoRef = useRef<HTMLVideoElement | null>(null);
+	// 옵저버 콜백과 라이트박스 effect 가 서로의 최신 상태를 참조하도록 ref 로 보존
+	const isIntersectingRef = useRef(false);
+	const isLightboxOpenRef = useRef(false);
 	const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
 	// useLayoutEffect: DOM 커밋 직후, 브라우저 페인트 전에 실행
@@ -42,9 +45,11 @@ const MdxVideo = ({ src, alt, width }: MdxVideoProps) => {
 		const handleClick = () => setIsLightboxOpen(true);
 		video.addEventListener("click", handleClick);
 
+		// 라이트박스가 열려 있으면 화면 안이라도 본문 영상은 재생하지 않음
 		const observer = new IntersectionObserver(
 			([entry]) => {
-				if (entry.isIntersecting) {
+				isIntersectingRef.current = entry.isIntersecting;
+				if (entry.isIntersecting && !isLightboxOpenRef.current) {
 					video.play().catch(() => {});
 				} else {
 					video.pause();
@@ -58,21 +63,26 @@ const MdxVideo = ({ src, alt, width }: MdxVideoProps) => {
 		return () => {
 			observer.disconnect();
 			video.removeEventListener("click", handleClick);
+			// 캐시에 보존되는 동안 디코딩이 이어지지 않도록 명시적으로 정지
+			video.pause();
 			// DOM에서 분리만 하고 캐시에는 보존 → 재마운트 시 같은 요소 재사용
 			video.parentElement?.removeChild(video);
 			videoRef.current = null;
+			isIntersectingRef.current = false;
 		};
 	}, [src]);
 
 	// 라이트박스 오픈/닫기에 따라 본문 영상 재생 제어
 	// → 라이트박스 영상과 동시 디코딩으로 인한 CPU/GPU 자원 낭비 방지
+	// 닫힐 때는 현재 영상이 뷰포트 안에 있을 때만 재생을 재개해 스크롤 정합성 유지
 	useEffect(() => {
+		isLightboxOpenRef.current = isLightboxOpen;
 		const video = videoRef.current;
 		if (!video) return;
 
 		if (isLightboxOpen) {
 			video.pause();
-		} else {
+		} else if (isIntersectingRef.current) {
 			video.play().catch(() => {});
 		}
 	}, [isLightboxOpen]);

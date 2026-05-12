@@ -10,6 +10,7 @@ import {
 	fetchAllPostsForUtils,
 } from "@/api/post";
 import Giscus from "@/components/pages/post/detail/giscus";
+import PostCopyright from "@/components/pages/post/detail/post-copyright";
 import PostDetailBody from "@/components/pages/post/detail/post-detail-body";
 import PostDetailHeader from "@/components/pages/post/detail/post-detail-header";
 import PostNavigation from "@/components/pages/post/detail/post-navigation";
@@ -143,6 +144,8 @@ const PostDetailPage = async ({
 					/>
 
 					<PostDetailBody content={content} />
+
+					<PostCopyright published_at={published_at} created_at={created_at} />
 
 					<PostNavigation next={adjacentPosts.next} prev={adjacentPosts.prev} />
 

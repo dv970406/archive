@@ -20,12 +20,12 @@ const GlobalHeader = async () => {
 					</Link>
 
 					<nav className="flex items-center gap-6">
-						{/* <Link
+						<Link
 							href="/career"
 							className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
 						>
 							커리어
-						</Link> */}
+						</Link>
 						<PostsListTypeToggle />
 						<Link
 							href="/rss.xml"

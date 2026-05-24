@@ -50,31 +50,6 @@ export const careerData: CareerData = {
 	github: "https://github.com/dv970406",
 	experiences: [
 		{
-			company: "팀솔루션",
-			position: "프론트엔드 엔지니어",
-			period: "2022.06 - 2023.06",
-			startDate: "2022-06-01",
-			endDate: "2023-06-30",
-			description:
-				"3D 디지털트윈 기술로 산업현장을 데이터화하여 시각적으로 표현하는 기업",
-			achievements: [
-				{
-					text: "유니티-웹 간 통신 레이어 제거를 통해 가독성 개선 및 유지보수성 향상",
-					details: [
-						{
-							text: "As Is: iframe 내부에 3D 렌더링 → 인터랙션 → Unity 커맨드 → iframe 외부에 메시지 전달 → Widget에 표시",
-						},
-						{
-							text: "To Be: 3D 렌더링 → 인터랙션 → Unity 커맨드 → Widget에 표시",
-						},
-						{
-							text: "위 iframe 레이어 제거 작업으로 약 1,200줄의 코드를 삭제",
-						},
-					],
-				},
-			],
-		},
-		{
 			company: "아하",
 			position: "프론트엔드 엔지니어",
 			period: "2023.09 - 현재",
@@ -109,18 +84,24 @@ export const careerData: CareerData = {
 					],
 				},
 				{
-					text: "서비스 특성을 고려하여 웹 MFA(Micro Frontend Architecture) 인프라를 모놀리식으로 재설계",
+					text: "서비스 특성을 고려하여 웹 MFE(Micro Frontend) 구조를 모놀리식으로 재설계",
+					links: [
+						{
+							text: "웹 MFE(Micro Frontend) 구조를 모놀리식으로 재설계",
+							url: "https://www.choiseongjun.com/post/when-not-to-use-micro-frontends",
+						},
+					],
 					details: [
 						{
 							text: "서버 비용 연간 최소 1,000만원 절감 (AWS Calculator 기준, 실제 절감액은 그 이상)",
 						},
 						{
-							text: "빌드 시간 14분 → 3분으로 감소",
+							text: "빌드 시간 11분 → 3분으로 감소",
 						},
 					],
 				},
 				{
-					text: "프론트엔드 기술적 주도",
+					text: "프론트엔드 기술적 변화 주도",
 					details: [
 						{
 							text: "app router 전환을 위한 디자인 툴 마이그레이션 (emotion -> tailwindcss)",
@@ -156,6 +137,7 @@ export const careerData: CareerData = {
 					details: [
 						{
 							text: "PR 생성 및 PR 리뷰 등 반복적 워크플로우를 자동화하여 협업 피로 감소 및 리뷰 퀄리티 향상",
+							url: "https://www.choiseongjun.com/post/how-i-changed-my-mind-about-ai#2-자동화-방안",
 						},
 					],
 				},
@@ -169,6 +151,31 @@ export const careerData: CareerData = {
 				},
 			],
 		},
+		{
+			company: "팀솔루션",
+			position: "프론트엔드 엔지니어",
+			period: "2022.06 - 2023.06",
+			startDate: "2022-06-01",
+			endDate: "2023-06-30",
+			description:
+				"3D 디지털트윈 기술로 산업현장을 데이터화하여 시각적으로 표현하는 기업",
+			achievements: [
+				{
+					text: "유니티-웹 간 통신 레이어 제거를 통해 가독성 개선 및 유지보수성 향상",
+					details: [
+						{
+							text: "As Is: iframe 내부에 3D 렌더링 → 인터랙션 → Unity 커맨드 → iframe 외부에 메시지 전달 → Widget에 표시",
+						},
+						{
+							text: "To Be: 3D 렌더링 → 인터랙션 → Unity 커맨드 → Widget에 표시",
+						},
+						{
+							text: "위 iframe 레이어 제거 작업으로 약 1,200줄의 코드를 삭제",
+						},
+					],
+				},
+			],
+		},
 	],
 	others: [
 		{
@@ -176,7 +183,7 @@ export const careerData: CareerData = {
 			url: "https://www.ihd.or.kr/introducesubject1.do",
 		},
 		{
-			text: "2025년 회사 핵심가치를 이행한 우수사원 수상",
+			text: "2025년 회사 핵심가치 실천 우수사원 선정 (부상: 금 한 돈)",
 		},
 	],
 };

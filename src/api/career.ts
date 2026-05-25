@@ -162,15 +162,21 @@ export const careerData: CareerData = {
 			achievements: [
 				{
 					text: "유니티-웹 간 통신 레이어 제거를 통해 가독성 개선 및 유지보수성 향상",
+					links: [
+						{
+							text: "유니티-웹 간 통신 레이어 제거",
+							url: "https://www.choiseongjun.com/post/fresh-eyes-on-legacy",
+						},
+					],
 					details: [
 						{
-							text: "As Is: iframe 내부에 3D 렌더링 → 인터랙션 → Unity 커맨드 → iframe 외부에 메시지 전달 → Widget에 표시",
+							text: "As Is: 메인 페이지 → iframe → 3D 렌더링 → 인터랙션 → Unity 커맨드 → iframe → 메인 페이지에 Widget 표시",
 						},
 						{
-							text: "To Be: 3D 렌더링 → 인터랙션 → Unity 커맨드 → Widget에 표시",
+							text: "To Be: 메인 페이지 → 3D 렌더링 → 인터랙션 → Unity 커맨드 → 메인 페이지에 Widget 표시",
 						},
 						{
-							text: "위 iframe 레이어 제거 작업으로 약 1,200줄의 코드를 삭제",
+							text: "보일러 플레이트 내 iframe으로 인한 코드 라인(약 1,200~1,300줄) 제거로 가독성 및 유지보수성 향상",
 						},
 					],
 				},

@@ -34,8 +34,8 @@ const PostDetailHeader = ({
 				<time dateTime={published_at || created_at}>
 					{formatTimeAgo(published_at || created_at)}
 				</time>
-				<span>·</span>
-				<span>조회 수 {view_count}</span>
+				{/* 	<span>·</span>
+				<span>조회 수 {view_count}</span> */}
 			</div>
 
 			<div className="relative w-full aspect-video md:aspect-21/9 overflow-hidden rounded-lg bg-muted mb-6">

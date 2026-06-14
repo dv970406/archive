@@ -41,8 +41,8 @@ const PostsList = () => {
 										<time dateTime={post.published_at || post.created_at}>
 											{formatTimeAgo(post.published_at || post.created_at)}
 										</time>
-										<span>·</span>
-										<span>조회 수 {post.view_count}</span>
+										{/* <span>·</span>
+										<span>조회 수 {post.view_count}</span> */}
 									</div>
 
 									<h2 className="text-xl md:text-2xl font-semibold mb-3 text-foreground text-balance group-hover:text-primary transition-colors line-clamp-1">

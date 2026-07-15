@@ -93,7 +93,7 @@ export const careerData: CareerData = {
 					],
 					details: [
 						{
-							text: "서버 비용 연간 최소 1,000만원 절감 (AWS Calculator 기준, 실제 절감액은 그 이상)",
+							text: "서버 비용 연간 최소 1,000만원 절감 (AWS Calculator 기준)",
 						},
 						{
 							text: "빌드 시간 11분 → 3분으로 감소",
@@ -109,9 +109,6 @@ export const careerData: CareerData = {
 						{
 							text: "나뉘어 있던 모달/팝업 로직을 공통화하여 유지보수성 향상 및 DX 향상",
 							url: "https://www.choiseongjun.com/post/how-to-close-modal-in-mobile",
-						},
-						{
-							text: "pages router -> app router 마이그레이션을 통해 캐싱 전략 개선 (진행중)",
 						},
 					],
 				},

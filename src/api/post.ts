@@ -1,8 +1,7 @@
 import { unstable_cache } from "next/cache";
-import { notFound } from "next/navigation";
 import { SUPABASE_ERROR_CODE } from "@/lib/constant/error-code";
 import supabaseClient from "@/lib/supabase/client";
-import type { PostEntity } from "@/types/post";
+import type { Post, PostEntity } from "@/types/post";
 
 export const fetchAllPostsForUtils = unstable_cache(
 	async () => {
@@ -40,6 +39,7 @@ export const fetchPosts = unstable_cache(
 			.eq("status", "PUBLISHED")
 			.order("published_at", {
 				ascending: false,
+				nullsFirst: false,
 			})
 			.range(from, to);
 
@@ -58,29 +58,10 @@ export const fetchPosts = unstable_cache(
 	},
 );
 
-export const fetchPostById = unstable_cache(
-	async (postId: number) => {
-		const { data, error } = await supabaseClient
-			.from("post")
-			.select("*, category: category!category_id (*)")
-			.eq("id", postId)
-			.single();
-
-		if (error) {
-			if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
-				notFound();
-			}
-			throw error;
-		}
-		return data;
-	},
-	["post-by-id"],
-	{
-		revalidate: 300,
-	},
-);
-
-// 어떠한 컴포넌트에서도 호출 가능한 페치문
+// 어드민(수정 화면) 전용 페치문
+//
+// status 필터를 일부러 걸지 않는다. 숨긴 글도 수정 화면에서는 불러올 수 있어야 하기 때문.
+// 브라우저에서 로그인한 어드민만 호출하며, DRAFT/HIDDEN 차단은 RLS SELECT 정책이 담당한다.
 export const fetchPostBySlug = async (slug: string) => {
 	return supabaseClient
 		.from("post")
@@ -89,20 +70,34 @@ export const fetchPostBySlug = async (slug: string) => {
 		.single();
 };
 
-// 서버 컴포넌트 전용 (unstable_cache + notFound 사용)
-export const cachedPostBySlug = unstable_cache(
+// 공개 상세 페이지(서버 컴포넌트) 전용
+//
+// RLS만 믿지 않고 status 필터를 명시적으로 건다. 서버는 항상 anon이므로 RLS로도
+// 걸러지지만, 정책 변경/실수에 대비한 이중 방어이자 정책 적용 전에도 동작하게 하기 위함.
+//
+// notFound()를 이 콜백 안에서 던지면 안 된다. unstable_cache는 stale 엔트리를
+// 재검증할 때 콜백이 throw하면 에러를 삼키고 캐시된 옛 값을 그대로 반환하며
+// (next/dist/server/web/spec-extension/unstable-cache.js 의 catch 블록),
+// 캐시 타임스탬프도 갱신하지 않아 숨긴 글이 영구히 계속 노출된다.
+// 대신 null을 반환해 정상적으로 캐시에 기록되게 하고, 404 처리는 호출부에서 한다.
+export const cachedPublishedPostBySlug = unstable_cache(
 	async (slug: string) => {
-		const { data, error } = await fetchPostBySlug(slug);
+		const { data, error } = await supabaseClient
+			.from("post")
+			.select("*, category: category!category_id (*)")
+			.eq("slug", slug)
+			.eq("status", "PUBLISHED")
+			.single();
 
 		if (error) {
 			if (error?.code === SUPABASE_ERROR_CODE.NOT_FOUND) {
-				notFound();
+				return null;
 			}
 			throw error;
 		}
 		return data;
 	},
-	["post-by-slug"],
+	["published-post-by-slug"],
 	{
 		revalidate: 300,
 	},
@@ -114,6 +109,23 @@ export const fetchSavedPostDraft = async () => {
 		.select("*, category: category!category_id (*)")
 		.eq("status", "DRAFT")
 		.single();
+
+	if (error) throw error;
+	return data;
+};
+
+// 어드민 전용 숨긴 글 목록
+// RLS상 anon에게는 항상 빈 배열이 반환되므로 unstable_cache로 감싸면 안 된다.
+export const fetchHiddenPosts = async () => {
+	const { data, error } = await supabaseClient
+		.from("post")
+		.select("*, category: category!category_id (*)")
+		.eq("status", "HIDDEN")
+		// DESC의 PG 기본값은 NULLS FIRST라, published_at이 없는 행이 위로 올라오는 것을 막는다
+		.order("published_at", {
+			ascending: false,
+			nullsFirst: false,
+		});
 
 	if (error) throw error;
 	return data;
@@ -150,10 +162,11 @@ export const createPost = async ({
 	return data;
 };
 
+// status는 DB의 post_status enum에서 파생되어 PostStatus로 좁혀져 있다
 interface IUpdatePostProps
 	extends Partial<
 		Pick<
-			PostEntity,
+			Post,
 			| "content"
 			| "title"
 			| "category_id"
@@ -251,6 +264,7 @@ export const fetchAllPosts = unstable_cache(
 			.eq("status", "PUBLISHED")
 			.order("published_at", {
 				ascending: false,
+				nullsFirst: false,
 			});
 
 		if (error) throw error;

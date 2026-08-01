@@ -5,7 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { BlogPosting, WithContext } from "schema-dts";
 import {
-	cachedPostBySlug,
+	cachedPublishedPostBySlug,
 	fetchAdjacentPosts,
 	fetchAllPostsForUtils,
 } from "@/api/post";
@@ -29,7 +29,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { slug } = await params;
 
-	const postData = await cachedPostBySlug(slug);
+	const postData = await cachedPublishedPostBySlug(slug);
+
+	// 숨김/미발행 글은 메타데이터로도 제목·요약이 새지 않도록 여기서 바로 404
+	if (!postData) {
+		notFound();
+	}
 
 	return {
 		title: postData.title ?? "",
@@ -68,7 +73,7 @@ const PostDetailPage = async ({
 	const queryClient = getQueryClient();
 
 	// 헤더, 바디 컴포넌트를 서버 컴포넌트로만 구현하기 위해 useQuery를 사용하지 않음
-	const postData = await cachedPostBySlug(slug);
+	const postData = await cachedPublishedPostBySlug(slug);
 
 	if (!postData) {
 		notFound();

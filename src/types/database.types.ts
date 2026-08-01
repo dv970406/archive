@@ -47,7 +47,7 @@ export type Database = {
 					id: number;
 					published_at: string | null;
 					slug: string;
-					status: string;
+					status: Database["public"]["Enums"]["post_status"];
 					thumbnail: string | null;
 					title: string;
 					updated_at: string;
@@ -61,7 +61,7 @@ export type Database = {
 					id?: number;
 					published_at?: string | null;
 					slug: string;
-					status?: string;
+					status?: Database["public"]["Enums"]["post_status"];
 					thumbnail?: string | null;
 					title: string;
 					updated_at?: string;
@@ -75,7 +75,7 @@ export type Database = {
 					id?: number;
 					published_at?: string | null;
 					slug?: string;
-					status?: string;
+					status?: Database["public"]["Enums"]["post_status"];
 					thumbnail?: string | null;
 					title?: string;
 					updated_at?: string;
@@ -102,7 +102,7 @@ export type Database = {
 			};
 		};
 		Enums: {
-			[_ in never]: never;
+			post_status: "DRAFT" | "PUBLISHED" | "HIDDEN";
 		};
 		CompositeTypes: {
 			[_ in never]: never;
@@ -232,6 +232,8 @@ export type CompositeTypes<
 
 export const Constants = {
 	public: {
-		Enums: {},
+		Enums: {
+			post_status: ["DRAFT", "PUBLISHED", "HIDDEN"],
+		},
 	},
 } as const;

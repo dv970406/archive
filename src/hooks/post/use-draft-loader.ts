@@ -36,7 +36,15 @@ export const useDraftLoader = () => {
 			description: "취소하시는 경우 기존 글은 삭제됩니다.",
 			onPositive: () => {
 				try {
-					setDraft({ id, title, content, category, thumbnail, slug });
+					setDraft({
+						id,
+						title,
+						content,
+						category,
+						thumbnail,
+						slug,
+						status: "DRAFT",
+					});
 				} catch {
 					toast.error("불러오기에 실패했습니다");
 				}
@@ -88,6 +96,7 @@ export const useDraftLoader = () => {
 						category: null,
 						thumbnail: null,
 						slug: "",
+						status: "DRAFT",
 					});
 				},
 			},

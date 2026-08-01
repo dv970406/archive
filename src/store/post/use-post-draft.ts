@@ -2,7 +2,10 @@ import { create } from "zustand";
 import type { Post } from "@/types/post";
 
 interface IPostDraft
-	extends Pick<Post, "title" | "content" | "thumbnail" | "id" | "slug"> {
+	extends Pick<
+		Post,
+		"title" | "content" | "thumbnail" | "id" | "slug" | "status"
+	> {
 	category: Post["category"] | null;
 }
 
@@ -13,6 +16,7 @@ const initialState: IPostDraft = {
 	category: null,
 	thumbnail: null,
 	slug: "",
+	status: "DRAFT",
 };
 
 export interface IPostStore {
@@ -24,6 +28,7 @@ export interface IPostStore {
 		setCategory: (category: IPostDraft["category"]) => void;
 		setThumbnail: (thumbnail: IPostDraft["thumbnail"]) => void;
 		setSlug: (slug: IPostDraft["slug"]) => void;
+		setStatus: (status: IPostDraft["status"]) => void;
 		// 여러 필드를 한 번에 설정 — 개별 setter 6번 호출 대비 리렌더링 1회로 감소
 		setDraft: (draft: IPostDraft) => void;
 	};
@@ -86,6 +91,16 @@ const usePostStore = create<IPostStore>((set) => ({
 				},
 			}));
 		},
+		setStatus: (status) => {
+			set((prev) => ({
+				...prev,
+				postDraft: {
+					...prev.postDraft,
+					status,
+				},
+			}));
+		},
+		// 머지 방식이므로 IPostDraft의 모든 필드를 넘겨야 이전 글의 값이 남지 않는다
 		setDraft: (draft) => {
 			set((prev) => ({
 				...prev,
@@ -133,6 +148,11 @@ export const useSetThumbnail = () => {
 export const useSetSlug = () => {
 	const setSlug = usePostStore((store) => store.actions.setSlug);
 	return setSlug;
+};
+
+export const useSetStatus = () => {
+	const setStatus = usePostStore((store) => store.actions.setStatus);
+	return setStatus;
 };
 
 export const useSetDraft = () => {

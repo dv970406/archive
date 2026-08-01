@@ -1,21 +1,12 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
 	fetchAllPosts,
-	fetchPostById,
+	fetchHiddenPosts,
 	fetchPostBySlug,
 	fetchPosts,
 	fetchSavedPostDraft,
 } from "@/api/post";
 import { QUERY_KEYS } from "@/lib/query-keys";
-
-export const getPostByIdQuery = (postId: number) => ({
-	queryKey: QUERY_KEYS.post.byId(postId),
-	queryFn: () => fetchPostById(postId),
-});
-
-export const useGetPostById = (postId: number) => {
-	return useQuery(getPostByIdQuery(postId));
-};
 
 export const getPostBySlugQuery = (slug: string) => ({
 	queryKey: QUERY_KEYS.post.bySlug(slug),
@@ -38,6 +29,15 @@ export const useGetSavedPostDraft = () => {
 	return useQuery({
 		queryKey: QUERY_KEYS.post.draft,
 		queryFn: fetchSavedPostDraft,
+	});
+};
+
+// 어드민 전용. 비로그인 상태에서 불필요한 요청을 막기 위해 enabled로 제어한다.
+export const useGetHiddenPosts = ({ enabled }: { enabled: boolean }) => {
+	return useQuery({
+		queryKey: QUERY_KEYS.post.hidden,
+		queryFn: fetchHiddenPosts,
+		enabled,
 	});
 };
 

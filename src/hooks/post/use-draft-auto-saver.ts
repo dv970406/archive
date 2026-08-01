@@ -14,8 +14,13 @@ export const useDraftAutoSaver = () => {
 	const { mutate: updatePost } = useUpdatePostMutation();
 
 	useEffect(() => {
-		const { category, content, title, thumbnail, id, slug } = postDraft;
+		const { category, content, title, thumbnail, id, slug, status } = postDraft;
 		if (!id) return;
+
+		// 수정 화면을 거친 뒤 store에 남아 있는 발행 글(PUBLISHED/HIDDEN)을
+		// 자동저장이 DRAFT로 덮어써 버리는 것을 막는다.
+		// 특히 HIDDEN 글이 DRAFT가 되면 숨긴 글 목록에서도 사라져 복구가 불가능해진다.
+		if (status !== "DRAFT") return;
 
 		const isAnyDataExist = content || title || !!category || thumbnail || slug;
 		if (!isAnyDataExist) return;

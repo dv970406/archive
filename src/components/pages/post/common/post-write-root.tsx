@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { usePostEditorTabs } from "@/hooks/post/use-post-editor-tabs";
 import { usePublishPostWithAISummary } from "@/hooks/post/use-publish-post";
+import { useTogglePostVisibility } from "@/hooks/post/use-toggle-post-visibility";
 import { cn } from "@/lib/style/tailwind";
 import EditorController from "./editor-controller";
 import MdxPreview from "./mdx-preview";
@@ -26,6 +27,12 @@ const PostWriteRoot = ({ type }: IPostWriteRoot) => {
 		type,
 	});
 
+	const { isHidden, canToggle, isTogglePending, handleTogglePostVisibility } =
+		useTogglePostVisibility();
+
+	// 이미 발행된 글(PUBLISHED/HIDDEN)의 수정 화면에서만 공개 전환을 노출
+	const isVisibilityToggleVisible = type === "UPDATE" && canToggle;
+
 	return (
 		<div className="flex flex-col h-screen">
 			{/* 헤더 */}
@@ -42,10 +49,21 @@ const PostWriteRoot = ({ type }: IPostWriteRoot) => {
 							handleSplitTab={handleSplitTab}
 							handlePreviewTab={handlePreviewTab}
 						/>
+						{isVisibilityToggleVisible && (
+							<Button
+								type="button"
+								variant="outline"
+								onClick={handleTogglePostVisibility}
+								disabled={isTogglePending || isPending}
+								className="px-4 py-2"
+							>
+								{isHidden ? "공개하기" : "숨기기"}
+							</Button>
+						)}
 						<Button
 							type="button"
 							onClick={handlePublishPost}
-							disabled={isPending}
+							disabled={isPending || isTogglePending}
 							className="px-4 py-2"
 						>
 							저장

@@ -84,23 +84,6 @@ export const careerData: CareerData = {
 					],
 				},
 				{
-					text: "서비스 특성을 고려하여 웹 MFE(Micro Frontend) 구조를 모놀리식으로 재설계",
-					links: [
-						{
-							text: "웹 MFE(Micro Frontend) 구조를 모놀리식으로 재설계",
-							url: "https://www.choiseongjun.com/post/when-not-to-use-micro-frontends",
-						},
-					],
-					details: [
-						{
-							text: "서버 비용 연간 최소 1,000만원 절감 (AWS Calculator 기준)",
-						},
-						{
-							text: "빌드 시간 11분 → 3분으로 감소",
-						},
-					],
-				},
-				{
 					text: "프론트엔드 기술적 변화 주도",
 					details: [
 						{

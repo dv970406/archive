@@ -29,6 +29,10 @@ export const useGetSavedPostDraft = () => {
 	return useQuery({
 		queryKey: QUERY_KEYS.post.draft,
 		queryFn: fetchSavedPostDraft,
+		// 작성 화면을 떠나면 캐시를 바로 버려, 재진입할 때마다 DB의 현재 DRAFT를 다시 조회한다.
+		// 전역 기본값(gcTime 10분 + refetchOnMount:false)에서는 옛 스냅샷이 그대로 쓰여
+		// 이미 발행한 글을 임시저장 글로 착각해 비우거나, 자동저장된 최신 내용을 옛 내용으로 덮어쓴다.
+		gcTime: 0,
 	});
 };
 

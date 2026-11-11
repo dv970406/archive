@@ -1,53 +1,49 @@
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { BlogPosting, WithContext } from "schema-dts";
-import {
-	cachedPublishedPostBySlug,
-	fetchAdjacentPosts,
-	fetchAllPostsForUtils,
-} from "@/api/post";
 import Giscus from "@/components/pages/post/detail/giscus";
 import PostCopyright from "@/components/pages/post/detail/post-copyright";
 import PostDetailBody from "@/components/pages/post/detail/post-detail-body";
 import PostDetailHeader from "@/components/pages/post/detail/post-detail-header";
 import PostNavigation from "@/components/pages/post/detail/post-navigation";
-import ViewTracker from "@/components/pages/post/detail/view-tracker";
 import { PLACEHOLDER_THUMBNAIL_PATH } from "@/lib/constant/image";
-import { getQueryClient } from "@/lib/utils/tanstack-query";
+import {
+	getAdjacentPosts,
+	getPostBySlug,
+	getPublishedPosts,
+} from "@/lib/content/posts";
+import { toAbsoluteUrl } from "@/lib/utils/url";
 import JsonLdProvider from "@/provider/jsonld-provider";
 
-// 포스트 상세 페이지는 ISR로 5분간 캐싱 처리
-export const revalidate = 300;
+// generateStaticParams 에 없는 slug 는 404 (모든 글이 빌드 시점에 정적으로 생성된다)
+export const dynamicParams = false;
+
+interface IPostDetailPageProps {
+	params: Promise<{ slug: string }>;
+}
 
 export async function generateMetadata({
 	params,
-}: {
-	params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+}: IPostDetailPageProps): Promise<Metadata> {
 	const { slug } = await params;
 
-	const postData = await cachedPublishedPostBySlug(slug);
+	const post = getPostBySlug(slug);
+	if (!post) notFound();
 
-	// 숨김/미발행 글은 메타데이터로도 제목·요약이 새지 않도록 여기서 바로 404
-	if (!postData) {
-		notFound();
-	}
+	const description = post.summary || `${post.title} - written by 최성준`;
 
 	return {
-		title: postData.title ?? "",
-		description: postData.ai_summary || `${postData.title} - written by 최성준`,
+		title: post.title,
+		description,
 		openGraph: {
-			title: postData.title ?? "",
-			description:
-				postData.ai_summary || `${postData.title} - written by 최성준`,
+			title: post.title,
+			description,
 			images: [
 				{
-					url:
-						postData.thumbnail ??
-						process.env.NEXT_PUBLIC_SITE_URL + PLACEHOLDER_THUMBNAIL_PATH,
+					// OG 이미지는 절대 URL 이어야 한다
+					url: toAbsoluteUrl(post.thumbnail ?? PLACEHOLDER_THUMBNAIL_PATH),
 					width: 1200,
 					height: 630,
 				},
@@ -56,110 +52,87 @@ export async function generateMetadata({
 	};
 }
 
-export async function generateStaticParams() {
-	const posts = await fetchAllPostsForUtils();
-
-	return posts.map((post) => ({
+export function generateStaticParams() {
+	return getPublishedPosts().map((post) => ({
 		slug: post.slug,
 	}));
 }
 
-const PostDetailPage = async ({
-	params,
-}: {
-	params: Promise<{ slug: string }>;
-}) => {
+const PostDetailPage = async ({ params }: IPostDetailPageProps) => {
 	const { slug } = await params;
-	const queryClient = getQueryClient();
 
-	// 헤더, 바디 컴포넌트를 서버 컴포넌트로만 구현하기 위해 useQuery를 사용하지 않음
-	const postData = await cachedPublishedPostBySlug(slug);
-
-	if (!postData) {
-		notFound();
-	}
+	const post = getPostBySlug(slug);
+	if (!post) notFound();
 
 	const {
-		id,
-		category,
 		title,
-		content,
-		created_at,
-		view_count,
-		published_at,
+		category,
 		thumbnail,
-		updated_at,
-		ai_summary,
-		category_id,
-	} = postData;
+		summary,
+		publishedAt,
+		updatedAt,
+		content,
+	} = post;
 
-	// 같은 카테고리 내 이전/다음 글 조회
-	const adjacentPosts = await fetchAdjacentPosts({
-		category_id,
-		published_at,
-		id,
-	});
+	// 같은 카테고리 내 이전/다음 글
+	const adjacentPosts = getAdjacentPosts(post);
+
+	const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
 	const jsonLd: WithContext<BlogPosting> = {
 		"@context": "https://schema.org",
 		"@type": "BlogPosting",
 		headline: title,
-		description: ai_summary ?? undefined,
-		image: thumbnail ?? undefined,
-		datePublished: published_at ?? undefined,
-		dateModified: updated_at,
-		dateCreated: published_at || created_at,
-		articleSection: category?.title,
+		description: summary ?? undefined,
+		image: thumbnail ? toAbsoluteUrl(thumbnail) : undefined,
+		datePublished: publishedAt,
+		dateModified: updatedAt,
+		dateCreated: publishedAt,
+		articleSection: category.title,
 		author: {
 			"@type": "Person",
 			name: "최성준",
-			url: process.env.NEXT_PUBLIC_SITE_URL,
+			url: siteUrl,
 			jobTitle: "프론트엔드 엔지니어",
 		},
 		publisher: {
 			"@type": "Person",
 			name: "최성준",
-			url: process.env.NEXT_PUBLIC_SITE_URL,
+			url: siteUrl,
 		},
 		mainEntityOfPage: {
 			"@type": "WebPage",
-			"@id": `${process.env.NEXT_PUBLIC_SITE_URL}/post/${slug}`,
+			"@id": `${siteUrl}/post/${slug}`,
 		},
 	};
 
 	return (
-		<HydrationBoundary state={dehydrate(queryClient)}>
-			<JsonLdProvider jsonLd={jsonLd}>
-				<main className="mx-auto py-12 max-w-3xl">
-					<Link
-						href="/"
-						className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 w-fit"
-					>
-						<ArrowLeft className="w-4 h-4" />
-						<span>목록으로</span>
-					</Link>
+		<JsonLdProvider jsonLd={jsonLd}>
+			<main className="mx-auto py-12 max-w-3xl">
+				<Link
+					href="/"
+					className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 w-fit"
+				>
+					<ArrowLeft className="w-4 h-4" />
+					<span>목록으로</span>
+				</Link>
 
-					<PostDetailHeader
-						category={category}
-						title={title}
-						view_count={view_count}
-						created_at={created_at}
-						published_at={published_at}
-						thumbnail={thumbnail}
-					/>
+				<PostDetailHeader
+					category={category}
+					title={title}
+					publishedAt={publishedAt}
+					thumbnail={thumbnail}
+				/>
 
-					<PostDetailBody content={content} />
+				<PostDetailBody content={content} />
 
-					<PostCopyright published_at={published_at} created_at={created_at} />
+				<PostCopyright publishedAt={publishedAt} />
 
-					<PostNavigation next={adjacentPosts.next} prev={adjacentPosts.prev} />
+				<PostNavigation next={adjacentPosts.next} prev={adjacentPosts.prev} />
 
-					<Giscus />
-				</main>
-
-				<ViewTracker id={id} />
-			</JsonLdProvider>
-		</HydrationBoundary>
+				<Giscus />
+			</main>
+		</JsonLdProvider>
 	);
 };
 

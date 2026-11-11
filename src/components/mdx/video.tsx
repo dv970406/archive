@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import ResizableMediaWrapper from "./resizable-media-wrapper";
+import MediaWidthWrapper from "./media-width-wrapper";
 import VideoLightbox from "./video-lightbox";
 
 interface MdxVideoProps {
@@ -10,7 +10,7 @@ interface MdxVideoProps {
 	width?: number;
 }
 
-// 전역 비디오 캐시 — MDXClient 재컴파일 시 <video> DOM 요소를 보존하여 깜빡임 방지
+// 전역 비디오 캐시 — 같은 영상이 다시 마운트될 때 <video> DOM 요소를 재사용하여 깜빡임 방지
 const videoCache = new Map<string, HTMLVideoElement>();
 
 const MdxVideo = ({ src, alt, width }: MdxVideoProps) => {
@@ -99,9 +99,7 @@ const MdxVideo = ({ src, alt, width }: MdxVideoProps) => {
 	return (
 		<>
 			{width !== undefined ? (
-				<ResizableMediaWrapper src={src} width={width}>
-					{videoElement}
-				</ResizableMediaWrapper>
+				<MediaWidthWrapper width={width}>{videoElement}</MediaWidthWrapper>
 			) : (
 				videoElement
 			)}

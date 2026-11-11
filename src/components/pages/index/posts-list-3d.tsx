@@ -12,11 +12,9 @@ import {
 	CSS3DRenderer,
 } from "three/examples/jsm/renderers/CSS3DRenderer.js";
 import { Button } from "@/components/ui/button";
-import { useGetAllPosts } from "@/hooks/queries/post";
 import { PLACEHOLDER_THUMBNAIL_PATH } from "@/lib/constant/image";
-import { parseMarkdownToPlainText } from "@/lib/utils/markdown";
 import { formatTimeAgo } from "@/lib/utils/time";
-import type { Post } from "@/types/post";
+import type { PostCard } from "@/types/post";
 
 /** 3D 레이아웃 배치에 사용되는 상수 */
 const LAYOUT_CONFIG = {
@@ -57,22 +55,12 @@ interface Targets {
 	wave: THREE.Object3D[];
 }
 
-type IPostItem = Pick<
-	Post,
-	| "title"
-	| "content"
-	| "published_at"
-	| "thumbnail"
-	| "slug"
-	| "created_at"
-	| "category"
->;
+type IPostItem = PostCard;
 
 const PostItem = ({
-	category,
-	content,
-	created_at,
-	published_at,
+	categoryTitle,
+	excerpt,
+	publishedAt,
 	slug,
 	thumbnail,
 	title,
@@ -94,28 +82,25 @@ const PostItem = ({
 			<div className="p-5">
 				<div className="flex items-center gap-2 mb-3">
 					<span className="px-3 py-1 text-xs font-semibold bg-primary text-primary-foreground rounded-md">
-						{category?.title}
+						{categoryTitle}
 					</span>
 				</div>
 				<div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-					<time dateTime={published_at || created_at}>
-						{formatTimeAgo(published_at || created_at)}
-					</time>
+					{/* 3D 카드는 클라이언트에서만 생성되므로(createRoot) 하이드레이션 없이 현재 시각 기준으로 계산한다 */}
+					<time dateTime={publishedAt}>{formatTimeAgo(publishedAt)}</time>
 				</div>
 				<h2 className="text-lg font-semibold mb-2 text-foreground group-hover:text-primary transition-colors line-clamp-1">
 					{title}
 				</h2>
 				<p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
-					{parseMarkdownToPlainText(content)}
+					{excerpt}
 				</p>
 			</div>
 		</Link>
 	);
 };
 
-const PostsList3D = () => {
-	const { data: postsList } = useGetAllPosts();
-
+const PostsList3D = ({ posts }: IPostsList3DProps) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const sceneRef = useRef<THREE.Scene | null>(null);
 	const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -131,7 +116,7 @@ const PostsList3D = () => {
 	const [isTransitioning, setIsTransitioning] = useState(false);
 
 	const createCards = () => {
-		postsList?.forEach((post) => {
+		posts.forEach((post) => {
 			const container = document.createElement("div");
 			container.className = "transition-all duration-1500 ease-in-out";
 
@@ -251,9 +236,9 @@ const PostsList3D = () => {
 		}
 	};
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <postsList가 준비되면 씬 전체 초기화>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <posts가 바뀌면 씬 전체 초기화>
 	useEffect(() => {
-		if (!containerRef.current || !postsList?.length) return;
+		if (!containerRef.current || !posts.length) return;
 
 		const container = containerRef.current;
 
@@ -319,7 +304,7 @@ const PostsList3D = () => {
 			}
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [postsList]);
+	}, [posts]);
 
 	const handleLayoutChange = (layoutName: keyof Targets) => () => {
 		if (isTransitioning) return;

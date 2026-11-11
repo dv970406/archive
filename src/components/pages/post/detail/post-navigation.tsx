@@ -1,10 +1,10 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import type { AdjacentPosts } from "@/types/post";
+import type { AdjacentPost } from "@/types/post";
 
 interface IPostNavigation {
-	prev: AdjacentPosts | null;
-	next: AdjacentPosts | null;
+	prev: AdjacentPost | null;
+	next: AdjacentPost | null;
 }
 
 const PostNavigation = ({ next, prev }: IPostNavigation) => {

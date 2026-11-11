@@ -1,30 +1,27 @@
-import { fetchAllPosts } from "@/api/post";
+import { getPublishedPosts } from "@/lib/content/posts";
+import { toAbsoluteUrl } from "@/lib/utils/url";
 
-// 하루마다 갱신하도록 설정
-export const revalidate = 86400;
+// 글은 빌드 시점에 파일에서 읽으므로 RSS 도 정적으로 생성한다
+export const dynamic = "force-static";
 
 export async function GET() {
 	const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
-	const posts = await fetchAllPosts();
+	const posts = getPublishedPosts();
 
 	const rssItems = posts
 		.map((post) => {
 			const postUrl = `${SITE_URL}/post/${post.slug}`;
-			const pubDate = post.published_at
-				? new Date(post.published_at).toUTCString()
-				: new Date(post.created_at).toUTCString();
+			const pubDate = new Date(post.publishedAt).toUTCString();
 
-			const rawDescription = post.ai_summary ?? post.title;
+			const rawDescription = post.summary ?? post.title;
 			const description = escapeXml(
 				`${rawDescription}\n\n더 자세한 내용은 링크를 통해 확인하세요.`,
 			);
 
-			const categoryTag = post.category
-				? `<category>${escapeXml(post.category.title)}</category>`
-				: "";
+			const categoryTag = `<category>${escapeXml(post.category.title)}</category>`;
 
 			const thumbnailTag = post.thumbnail
-				? `<enclosure url="${escapeXml(post.thumbnail)}" type="${inferMimeTypeFromUrl(post.thumbnail)}" length="0" />`
+				? `<enclosure url="${escapeXml(toAbsoluteUrl(post.thumbnail))}" type="${inferMimeTypeFromUrl(post.thumbnail)}" length="0" />`
 				: "";
 
 			return `

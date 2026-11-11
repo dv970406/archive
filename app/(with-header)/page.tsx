@@ -1,24 +1,15 @@
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-
 import CategoryFilter from "@/components/pages/index/category-filter";
 import PostsList from "@/components/pages/index/posts-list";
-import { getInfinitePostsQuery } from "@/hooks/queries/post";
+import { getPublishedPosts, toPostCard } from "@/lib/content/posts";
 import {
 	createCollectionPageJsonLd,
 	createWebsiteJsonLd,
 } from "@/lib/utils/jsonld";
-import { getQueryClient } from "@/lib/utils/tanstack-query";
 import JsonLdProvider from "@/provider/jsonld-provider";
 
-// 피드 페이지는 ISR로 5분간 캐싱 처리
-export const revalidate = 300;
-
-const FeedPage = async () => {
-	const queryClient = getQueryClient();
-
-	await Promise.all([
-		queryClient.prefetchInfiniteQuery(getInfinitePostsQuery()),
-	]);
+// 모든 글은 빌드 시점에 content/ 에서 읽어 정적으로 생성된다
+const FeedPage = () => {
+	const posts = getPublishedPosts().map(toPostCard);
 
 	const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -31,14 +22,12 @@ const FeedPage = async () => {
 	});
 
 	return (
-		<HydrationBoundary state={dehydrate(queryClient)}>
-			<JsonLdProvider jsonLd={websiteJsonLd}>
-				<JsonLdProvider jsonLd={collectionPageJsonLd}>
-					<CategoryFilter />
-					<PostsList />
-				</JsonLdProvider>
+		<JsonLdProvider jsonLd={websiteJsonLd}>
+			<JsonLdProvider jsonLd={collectionPageJsonLd}>
+				<CategoryFilter />
+				<PostsList posts={posts} />
 			</JsonLdProvider>
-		</HydrationBoundary>
+		</JsonLdProvider>
 	);
 };
 

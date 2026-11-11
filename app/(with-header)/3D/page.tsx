@@ -1,13 +1,11 @@
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import dynamic from "next/dynamic";
 
 import Loader from "@/components/ui/loader";
-import { getAllPostsQuery } from "@/hooks/queries/post";
+import { getPublishedPosts, toPostCard } from "@/lib/content/posts";
 import {
 	createCollectionPageJsonLd,
 	createWebsiteJsonLd,
 } from "@/lib/utils/jsonld";
-import { getQueryClient } from "@/lib/utils/tanstack-query";
 import JsonLdProvider from "@/provider/jsonld-provider";
 
 // THREE.js 번들을 별도 청크로 분리하여 다른 페이지의 초기 로딩에 영향을 주지 않음
@@ -16,13 +14,9 @@ const PostsList3D = dynamic(
 	{ loading: () => <Loader /> },
 );
 
-// 피드 페이지는 ISR로 5분간 캐싱 처리
-export const revalidate = 300;
-
-const FeedPage = async () => {
-	const queryClient = getQueryClient();
-
-	await Promise.all([queryClient.prefetchQuery(getAllPostsQuery)]);
+// 모든 글은 빌드 시점에 content/ 에서 읽어 정적으로 생성된다
+const FeedPage = () => {
+	const posts = getPublishedPosts().map(toPostCard);
 
 	const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -35,13 +29,11 @@ const FeedPage = async () => {
 	});
 
 	return (
-		<HydrationBoundary state={dehydrate(queryClient)}>
-			<JsonLdProvider jsonLd={websiteJsonLd}>
-				<JsonLdProvider jsonLd={collectionPageJsonLd}>
-					<PostsList3D />
-				</JsonLdProvider>
+		<JsonLdProvider jsonLd={websiteJsonLd}>
+			<JsonLdProvider jsonLd={collectionPageJsonLd}>
+				<PostsList3D posts={posts} />
 			</JsonLdProvider>
-		</HydrationBoundary>
+		</JsonLdProvider>
 	);
 };
 

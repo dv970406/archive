@@ -1,60 +1,53 @@
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import type { Metadata } from "next";
-import { cachedAllCategories, fetchCategoryByPathname } from "@/api/category";
+import { notFound } from "next/navigation";
 import CategoryFilter from "@/components/pages/index/category-filter";
 import PostsList from "@/components/pages/index/posts-list";
-import { getCategoryByPathnameQuery } from "@/hooks/queries/category";
-import { getInfinitePostsQuery } from "@/hooks/queries/post";
+import {
+	getAllCategories,
+	getCategoryByPathname,
+} from "@/lib/content/categories";
+import { getPostsByCategory, toPostCard } from "@/lib/content/posts";
 import { createCollectionPageJsonLd } from "@/lib/utils/jsonld";
-import { getQueryClient } from "@/lib/utils/tanstack-query";
 import JsonLdProvider from "@/provider/jsonld-provider";
 
-// 피드 페이지는 ISR로 5분간 캐싱 처리
-export const revalidate = 300;
+// generateStaticParams 에 없는 카테고리는 404 (모든 카테고리가 빌드 시점에 정적으로 생성된다)
+export const dynamicParams = false;
+
+interface IFilteredFeedPageProps {
+	params: Promise<{ slug: string }>;
+}
 
 export async function generateMetadata({
 	params,
-}: {
-	params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+}: IFilteredFeedPageProps): Promise<Metadata> {
 	const { slug } = await params;
 
-	const category = await fetchCategoryByPathname(slug);
+	const category = getCategoryByPathname(slug);
+	if (!category) notFound();
 
 	return {
-		title: `${category.title ?? ""} 피드 목록`,
-		description: `${category.title ?? ""} 피드 목록입니다.`,
+		title: `${category.title} 피드 목록`,
+		description: `${category.title} 피드 목록입니다.`,
 		openGraph: {
-			title: `${category.title ?? ""} 피드 목록`,
-			description: `${category.title ?? ""} 피드 목록입니다.`,
+			title: `${category.title} 피드 목록`,
+			description: `${category.title} 피드 목록입니다.`,
 		},
 	};
 }
 
-export async function generateStaticParams() {
-	const categories = await cachedAllCategories();
-
-	return categories.map((category) => ({
+export function generateStaticParams() {
+	return getAllCategories().map((category) => ({
 		slug: category.pathname,
 	}));
 }
 
-const FilteredFeedFage = async ({
-	params,
-}: {
-	params: Promise<{ slug: string }>;
-}) => {
+const FilteredFeedPage = async ({ params }: IFilteredFeedPageProps) => {
 	const { slug } = await params;
-	const queryClient = getQueryClient();
 
-	const category = await queryClient.fetchQuery(
-		getCategoryByPathnameQuery(slug),
-	);
+	const category = getCategoryByPathname(slug);
+	if (!category) notFound();
 
-	if (!category) return;
-	await Promise.all([
-		queryClient.prefetchInfiniteQuery(getInfinitePostsQuery(category.id)),
-	]);
+	const posts = getPostsByCategory(category.pathname).map(toPostCard);
 
 	const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
@@ -96,13 +89,11 @@ const FilteredFeedFage = async ({
 	};
 
 	return (
-		<HydrationBoundary state={dehydrate(queryClient)}>
-			<JsonLdProvider jsonLd={collectionPageJsonLd}>
-				<CategoryFilter />
-				<PostsList />
-			</JsonLdProvider>
-		</HydrationBoundary>
+		<JsonLdProvider jsonLd={collectionPageJsonLd}>
+			<CategoryFilter />
+			<PostsList posts={posts} />
+		</JsonLdProvider>
 	);
 };
 
-export default FilteredFeedFage;
+export default FilteredFeedPage;

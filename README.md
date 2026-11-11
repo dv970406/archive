@@ -1,55 +1,64 @@
 # Archive
 
-MDX 기반 개인 블로그 플랫폼. Claude AI를 활용한 글 자동 요약 기능을 포함합니다.
+MDX 파일 기반 개인 기술 블로그. 모든 페이지를 빌드 시점에 정적으로 생성하며, DB·서버 없이 Vercel 에 배포됩니다.
+글은 `content/` 의 MDX 파일로 git 에서 함께 관리하고, Claude AI 로 만든 요약을 프론트매터에 저장합니다.
 
 ## 기술 스택
 
 | 영역 | 기술 |
 |------|------|
-| Framework | Next.js 16 (App Router) |
+| Framework | Next.js 16 (App Router, 정적 생성) |
 | Styling | Tailwind CSS 4 |
-| State | TanStack React Query 5, Zustand 5 |
-| Database | Supabase (PostgreSQL) |
-| AI | Anthropic Claude API |
+| Content | MDX 파일 (gray-matter + next-mdx-remote-client) |
+| AI | Anthropic Claude API (로컬 요약 스크립트) |
 | UI | Shadcn |
-| Content | MDX (next-mdx-remote-client) |
+| Comments | Giscus |
 | Linting | Biome 2 |
 | Deployment | Vercel |
 
 ## 주요 기능
 
-- MDX 마크다운 에디터 (Write / Preview / Split 모드) only Admin
-- Claude AI 기반 글 자동 요약
-- 카테고리별 글 분류
+- `content/posts` 의 MDX 글을 빌드 시점에 정적 페이지로 생성
+- Claude AI 기반 글 요약 (메타 description, RSS, JSON-LD 에 사용)
+- 카테고리별 글 분류 및 이전/다음 글 내비게이션
 - 다크/라이트 테마
-- Supabase Storage 이미지 업로드 (붙여넣기, WebP 변환)
+- 이미지·영상 라이트박스, 이미지 갤러리 (MDX 커스텀 컴포넌트)
+- 3D 피드 뷰 (three.js)
 - Giscus 댓글 시스템
-- ISR 캐싱 (5분)
-- 조회수 추적
-- SEO 메타데이터 및 Sitemap
+- SEO 메타데이터, JSON-LD, Sitemap, RSS
 
 ## 프로젝트 구조
 
 ```
+content/
+├── categories.json   # 카테고리 목록 { pathname, title, order }
+├── posts/            # 공개 글 (<slug>.mdx — 파일명이 URL slug)
+└── drafts/           # 초안 (git 제외, 개발 서버에서만 미리보기)
+
+public/posts/<slug>/  # 글의 이미지·영상 (본문에서 /posts/<slug>/<파일명> 으로 참조)
+
+scripts/
+├── new-post.ts       # 초안 생성
+├── publish-post.ts   # 초안 공개 (+AI 요약)
+└── summarize-post.ts # AI 요약 생성
+
 src/
-├── api/          # 데이터 페칭 함수 (post, category, auth, image, AI)
+├── api/          # 정적 데이터 (career)
 ├── components/   # React 컴포넌트
 │   ├── ui/       # 재사용 UI 컴포넌트
 │   ├── layout/   # Header, Layout
 │   ├── pages/    # 페이지별 컴포넌트
-│   ├── modal/    # 모달 컴포넌트
 │   └── mdx/      # MDX 렌더링 컴포넌트
-├── hooks/        # Custom hooks(queries, mutations, etc...)
-├── provider/     # Context providers (Query, Portal)
-├── store/        # Zustand 스토어
-├── types/        # TypeScript 타입 정의
-└── lib/          # 유틸리티, Supabase 클라이언트, 상수
+├── hooks/        # Custom hooks
+├── lib/
+│   └── content/  # MDX 파일 로더 (categories, posts)
+├── provider/     # JSON-LD provider
+└── types/        # TypeScript 타입 정의
 
 app/
-├── api/              # API Route Handlers
-├── (with-header)/    # 공개 페이지 (피드, 글 상세, 카테고리)
-├── (with-auth)/      # 인증 필요 페이지 (글 작성/수정)
-└── (with-no-auth)/   # 인증 페이지 (로그인)
+├── (with-header)/    # 피드, 카테고리 피드, 글 상세, 3D 피드, 커리어
+├── rss.xml/          # RSS
+└── sitemap.ts        # 사이트맵
 ```
 
 ## 시작하기
@@ -57,13 +66,13 @@ app/
 ### 사전 요구사항
 
 - Node.js 20+
-- [Bun](https://bun.sh/) (패키지 매니저)
-- [Supabase CLI](https://supabase.com/docs/guides/cli) (로컬 개발 시)
+- [pnpm](https://pnpm.io/) (패키지 매니저)
+- [Bun](https://bun.sh/) (글 작성 스크립트 실행용)
 
 ### 1. 의존성 설치
 
 ```bash
-bun install
+pnpm install
 ```
 
 ### 2. 환경변수 설정
@@ -71,49 +80,92 @@ bun install
 프로젝트 루트에 `.env` 파일을 생성합니다.
 
 ```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_API_URL=your_supabase_api_url
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_supabase_anon_key
-NEXT_PUBLIC_SUPABASE_STORAGE_URL=your_supabase_storage_url
-
-# Site
+# 절대 URL 생성용 (OG 이미지, RSS, Sitemap, JSON-LD)
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
-# AI (Claude API)
+# AI 요약 스크립트 전용 (pnpm summarize / publish-post --summarize). 배포 환경에는 불필요
 ANTHROPIC_API_KEY=your_anthropic_api_key
 ```
 
-### 3. Supabase 로컬 환경 실행 (선택)
+### 3. 개발 서버 실행
 
 ```bash
-supabase start
+pnpm dev
 ```
 
-로컬 DB를 리모트와 동기화하려면:
+[http://localhost:3000](http://localhost:3000)에서 확인할 수 있습니다. 개발 서버에서는 `content/drafts` 의 초안도 함께 노출됩니다.
+
+### 4. 빌드
 
 ```bash
-bun run supabase:db-sync
+pnpm build
+pnpm start
 ```
 
-DB 타입을 재생성하려면:
+## 글 작성
+
+### 1. 초안 생성
 
 ```bash
-bun run supabase:type-gen
+pnpm new-post my-post --category blog --title "글 제목"
 ```
 
-### 4. 개발 서버 실행
+`content/drafts/my-post.mdx` 가 만들어집니다. `--category` 는 `content/categories.json` 의 `pathname` 중 하나입니다.
+
+### 2. 작성 및 미리보기
+
+- 본문은 MDX 로 작성합니다.
+- 이미지·영상은 `public/posts/my-post/` 에 넣고 `<Image src="/posts/my-post/a.webp" width={100} />` 처럼 참조합니다.
+  초안 단계에서 git 에 올리고 싶지 않다면 `content/drafts/my-post/` 에 두어도 됩니다. 개발 서버가 같은 `/posts/my-post/…` 경로로 서빙해 주고(개발 전용 라우트), 공개 시 `public/posts/my-post/` 로 자동으로 옮겨집니다.
+- 썸네일은 프론트매터 `thumbnail: /posts/my-post/thumbnail.webp` 로 지정합니다. (없으면 기본 이미지 사용)
+- `pnpm dev` 로 실행하면 초안도 피드와 상세 페이지에 노출되어 미리볼 수 있습니다.
+
+### 3. 공개
 
 ```bash
-bun run dev
+pnpm publish-post my-post --summarize
 ```
 
-[http://localhost:3000](http://localhost:3000)에서 확인할 수 있습니다.
+- `content/drafts/my-post.mdx` → `content/posts/my-post.mdx` 로 이동
+- `content/drafts/my-post/` 가 있으면 `public/posts/my-post/` 로 이동
+- `publishedAt`, `updatedAt` 을 현재 시각으로 갱신
+- `--summarize` 를 주면 Claude AI 요약을 생성해 `summary` 에 기록
 
-### 5. 빌드
+이후 커밋·푸시하면 Vercel 이 다시 빌드해 배포합니다. 공개한 글을 수정했다면 `updatedAt` 을 직접 갱신하고, 요약을 다시 만들고 싶다면 `pnpm summarize my-post` 를 실행합니다.
 
-```bash
-bun run build
+### 프론트매터
+
+```yaml
+---
+title: 글 제목
+category: blog                              # content/categories.json 의 pathname
+thumbnail: /posts/my-post/thumbnail.webp    # 선택
+summary: AI 요약 (선택)
+publishedAt: '2026-01-19T15:15:51.062Z'     # ISO 8601
+updatedAt: '2026-01-19T15:16:14.497Z'       # 수정 시 직접 갱신
+---
 ```
+
+### MDX 커스텀 컴포넌트
+
+```mdx
+<Callout type="info">정보 · warning · success · error</Callout>
+
+<Image src="/posts/my-post/a.webp" alt="캡션" width={75} />
+
+<Video src="/posts/my-post/demo.webm" width={100} />
+
+<ImageGallery>
+	<ImageGallery.Image src="/posts/my-post/a.webp" alt="첫 번째" />
+	<ImageGallery.Image src="/posts/my-post/b.webp" alt="두 번째" />
+</ImageGallery>
+```
+
+`width` 는 본문 너비 대비 퍼센트입니다.
+
+### 글 숨기기
+
+`content/posts/<slug>.mdx` 를 `content/drafts/` 로, `public/posts/<slug>/` 를 `content/drafts/<slug>/` 로 옮기면 사이트와 git 에서 모두 사라집니다. (`content/drafts` 는 gitignore 대상)
 
 ## Git Hooks
 

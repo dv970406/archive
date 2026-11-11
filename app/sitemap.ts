@@ -1,22 +1,22 @@
 import type { MetadataRoute } from "next";
-import { fetchAllCategoriesForUtils } from "@/api/category";
-import { fetchAllPostsForUtils } from "@/api/post";
+import { getAllCategories } from "@/lib/content/categories";
+import { getPublishedPosts } from "@/lib/content/posts";
 
-// 하루마다 갱신하도록 설정
-export const revalidate = 86400;
-
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+// 글은 빌드 시점에 파일에서 읽으므로 사이트맵도 정적으로 생성된다
+export default function sitemap(): MetadataRoute.Sitemap {
 	const PRODUCTION_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
-	const categories = await fetchAllCategoriesForUtils();
-	const categoriesArray = categories.map((category) => ({
+
+	const categoriesArray = getAllCategories().map((category) => ({
 		url: `${PRODUCTION_URL}/category/${category.pathname}`,
 	}));
 
-	const posts = await fetchAllPostsForUtils();
-	const postsArray = posts.map((post) => ({
-		url: `${PRODUCTION_URL}/post/${post.slug}`,
-		lastModified: post.updated_at,
-	}));
+	// 기존과 같이 마지막 수정일 오름차순으로 나열한다
+	const postsArray = [...getPublishedPosts()]
+		.sort((a, b) => Date.parse(a.updatedAt) - Date.parse(b.updatedAt))
+		.map((post) => ({
+			url: `${PRODUCTION_URL}/post/${post.slug}`,
+			lastModified: post.updatedAt,
+		}));
 
 	const availableUrlsArray: MetadataRoute.Sitemap = [
 		// 피드 페이지

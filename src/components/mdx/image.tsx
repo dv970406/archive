@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useState } from "react";
-import ResizableMediaWrapper from "./resizable-media-wrapper";
+import MediaWidthWrapper from "./media-width-wrapper";
 
 const ImageLightbox = dynamic(() => import("./image-lightbox"));
 
@@ -48,9 +48,7 @@ const MdxImage = ({ src, alt, width, onClick }: MdxImageProps) => {
 
 	const content =
 		width !== undefined ? (
-			<ResizableMediaWrapper src={src} width={width}>
-				{imageElement}
-			</ResizableMediaWrapper>
+			<MediaWidthWrapper width={width}>{imageElement}</MediaWidthWrapper>
 		) : (
 			imageElement
 		);

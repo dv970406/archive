@@ -1,3 +1,15 @@
+// YYYY-MM-DD 형태로 출력하는 로케일(en-CA)을 한국 시간대로 고정한다
+const seoulDateFormatter = new Intl.DateTimeFormat("en-CA", {
+	timeZone: "Asia/Seoul",
+	year: "numeric",
+	month: "2-digit",
+	day: "2-digit",
+});
+
+/** 한국 시간 기준 YYYY.MM.DD */
+const formatDateInSeoul = (date: Date) =>
+	seoulDateFormatter.format(date).replaceAll("-", ".");
+
 export const formatTimeAgo = (time: Date | string | number) => {
 	const start = new Date(time);
 	const end = new Date();
@@ -37,8 +49,6 @@ export const formatTimeAgo = (time: Date | string | number) => {
 	}
 
 	// 3달 이상이면 YYYY.MM.DD 포맷으로 표시
-	const year = start.getFullYear();
-	const month = String(start.getMonth() + 1).padStart(2, "0");
-	const day = String(start.getDate()).padStart(2, "0");
-	return `${year}.${month}.${day}`;
+	// 빌드 서버·브라우저의 타임존과 무관하게 같은 문자열이 나오도록 한국 시간 기준으로 고정한다
+	return formatDateInSeoul(start);
 };

@@ -1,0 +1,37 @@
+[
+	{
+		"pathname": "seo",
+		"title": "SEO",
+		"order": 1
+	},
+	{
+		"pathname": "component",
+		"title": "컴포넌트",
+		"order": 2
+	},
+	{
+		"pathname": "blog",
+		"title": "블로그",
+		"order": 3
+	},
+	{
+		"pathname": "performance",
+		"title": "성능",
+		"order": 4
+	},
+	{
+		"pathname": "ai",
+		"title": "AI",
+		"order": 5
+	},
+	{
+		"pathname": "architecture",
+		"title": "아키텍처",
+		"order": 6
+	},
+	{
+		"pathname": "retrospective",
+		"title": "회고",
+		"order": 7
+	}
+]

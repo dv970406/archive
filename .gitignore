@@ -40,6 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# 글 초안 (비공개). 개발 서버에서만 미리보기 된다
+/content/drafts/
+
+# 예전 Supabase 덤프 (로컬에만 보관)
 data.sql
 schema-storage.sql
 schema-table.sql

@@ -1,22 +1,15 @@
 import type { NextConfig } from "next";
+import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 
-const nextConfig: NextConfig = {
-	/* config options here */
-	logging: {
-		fetches: {
-			fullUrl: true,
-		},
-	},
-	images: {
-		/* 로컬 개발환경의 경우 storage의 도메인이 로컬호스트(127.0.0.1)인데 이 때 이미지 최적화를 꺼야 이미지가 제대로 렌더링됨 */
-		/* supabase stroage (local) : http://127.0.0.1:54321/storage/~~ */
-		unoptimized: process.env.NODE_ENV === "development",
-		remotePatterns: [
-			new URL(
-				`${process.env.NEXT_PUBLIC_SUPABASE_STORAGE_URL}/v1/object/public/**`,
-			),
-		],
-	},
-};
+// 글은 content/ 의 MDX 파일을 빌드 시점에 읽어 정적으로 생성하므로 런타임 데이터 소스나 원격 이미지 설정이 없다
+const nextConfig = (phase: string): NextConfig => ({
+	// 개발 서버에서만 `*.dev.ts` 라우트 파일을 인식한다.
+	// content/drafts/<slug>/ 의 초안 미디어를 서빙하는 app/posts/[slug]/[...file]/route.dev.ts 가 여기에 해당하며,
+	// 프로덕션 빌드에는 포함되지 않아 배포 결과는 완전한 정적 사이트로 유지된다
+	pageExtensions:
+		phase === PHASE_DEVELOPMENT_SERVER
+			? ["tsx", "ts", "dev.ts"]
+			: ["tsx", "ts"],
+});
 
 export default nextConfig;

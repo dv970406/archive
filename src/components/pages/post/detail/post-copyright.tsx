@@ -1,12 +1,9 @@
 import type { Post } from "@/types/post";
 
-type IPostCopyright = Pick<Post, "published_at" | "created_at">;
+type IPostCopyright = Pick<Post, "publishedAt">;
 
-const PostCopyright = ({ published_at, created_at }: IPostCopyright) => {
-	const baseDate = published_at ?? created_at;
-	const year = baseDate
-		? new Date(baseDate).getFullYear()
-		: new Date().getFullYear();
+const PostCopyright = ({ publishedAt }: IPostCopyright) => {
+	const year = new Date(publishedAt).getFullYear();
 
 	return (
 		<aside className="mt-12 pt-6 border-t text-sm text-muted-foreground space-y-1">

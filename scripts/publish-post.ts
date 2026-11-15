@@ -10,20 +10,18 @@
 // 4) --summarize 가 있으면 AI 요약을 생성해 summary 에 기록
 //
 // 공개한 글을 나중에 수정했다면 프론트매터의 updatedAt 을 직접 갱신한다.
+// (개발 서버의 에디터 /post/<slug>/update 에서 저장하면 자동으로 갱신된다)
 
 import fs from "node:fs";
-import path from "node:path";
-import { generateSummary } from "./lib/ai-summary";
+import { generateSummary } from "../src/lib/ai/summary";
 import {
 	assertSlug,
-	DRAFTS_DIR,
 	getDraftPath,
 	getPostPath,
-	PUBLIC_POSTS_DIR,
 	parseArgs,
 	readPostFile,
+	relocatePost,
 	toRelative,
-	writePostFile,
 } from "./lib/post-file";
 
 const main = async () => {
@@ -31,24 +29,11 @@ const main = async () => {
 	const slug = assertSlug(positional[0]);
 
 	const draftPath = getDraftPath(slug);
-	const postPath = getPostPath(slug);
-
 	if (!fs.existsSync(draftPath)) {
 		throw new Error(`초안이 없습니다: ${toRelative(draftPath)}`);
 	}
-	if (fs.existsSync(postPath)) {
-		throw new Error(`이미 공개된 글이 있습니다: ${toRelative(postPath)}`);
-	}
 
-	const draftMediaDir = path.join(DRAFTS_DIR, slug);
-	const publicMediaDir = path.join(PUBLIC_POSTS_DIR, slug);
-	if (fs.existsSync(draftMediaDir) && fs.existsSync(publicMediaDir)) {
-		throw new Error(
-			`미디어 폴더가 양쪽에 모두 있습니다. 하나로 합친 뒤 다시 실행하세요: ${toRelative(draftMediaDir)}, ${toRelative(publicMediaDir)}`,
-		);
-	}
-
-	const { data, content } = readPostFile(draftPath);
+	const { content } = readPostFile(draftPath);
 
 	// 본문이 비어 있으면 요약도 의미가 없으므로 먼저 막는다
 	if (content.trim() === "") {
@@ -56,31 +41,20 @@ const main = async () => {
 	}
 
 	const now = new Date().toISOString();
-	const nextData: Record<string, unknown> = {
-		...data,
+	const updateData: Record<string, unknown> = {
 		publishedAt: now,
 		updatedAt: now,
 	};
 
 	if (options.summarize) {
 		console.log("AI 요약을 생성합니다...");
-		nextData.summary = await generateSummary(content);
+		updateData.summary = await generateSummary(content);
 	}
 
-	// 미디어 폴더 이동
-	if (fs.existsSync(draftMediaDir)) {
-		fs.mkdirSync(PUBLIC_POSTS_DIR, { recursive: true });
-		fs.renameSync(draftMediaDir, publicMediaDir);
-		console.log(
-			`미디어를 옮겼습니다: ${toRelative(draftMediaDir)} → ${toRelative(publicMediaDir)}`,
-		);
-	}
+	// 글 파일과 미디어 폴더(content/drafts/<slug>/ → public/posts/<slug>/)를 함께 옮긴다
+	relocatePost(slug, "draft", "post", updateData);
 
-	// 글 파일 이동 (프론트매터 갱신 후 저장하고 초안은 삭제)
-	writePostFile(postPath, nextData, content);
-	fs.rmSync(draftPath);
-
-	console.log(`공개했습니다: ${toRelative(postPath)}`);
+	console.log(`공개했습니다: ${toRelative(getPostPath(slug))}`);
 	console.log("- 변경 사항을 커밋/푸시하면 배포됩니다.");
 };
 

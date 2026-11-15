@@ -104,7 +104,24 @@ pnpm start
 
 ## 글 작성
 
-### 1. 초안 생성
+### 에디터로 작성 (권장)
+
+`pnpm dev` 를 실행한 뒤 헤더의 **글 작성** 또는 [http://localhost:3000/post/create](http://localhost:3000/post/create) 로 들어갑니다.
+DB·서버 없이 에디터가 `content/` 의 MDX 파일과 미디어 폴더에 바로 씁니다. **개발 서버 전용**이라 배포된 사이트에는 에디터가 없습니다.
+
+- **작성 / 분할 / 미리보기** 탭, 하단의 MDX 컴포넌트(Callout·ImageGallery·Video) 삽입 버튼
+- **자동 임시저장**: 제목·경로(slug)·카테고리를 입력하면 입력이 멈출 때마다 `content/drafts/<slug>.mdx` 에 저장됩니다. 경로를 바꾸면 파일·미디어 폴더 이름과 본문의 미디어 경로도 함께 바뀝니다
+- **이미지·영상**: 본문에 드래그하거나 붙여넣으면 브라우저에서 webp·webm 으로 변환해 글의 미디어 폴더(초안은 `content/drafts/<slug>/`, 공개 글은 `public/posts/<slug>/`)에 저장하고 `<Image />`·`<Video />` 태그를 넣습니다. 미리보기에서 미디어 오른쪽 손잡이를 드래그하면 `width` 가 바뀝니다
+- **썸네일 업로드**: 바꾸거나 지운 이전 썸네일 파일은 저장할 때 정리됩니다
+- **발행**: 초안을 `content/posts` 로, 미디어를 `public/posts` 로 옮기고 `publishedAt`·`updatedAt` 을 갱신합니다. **AI 요약**을 체크하면 요약을 만들어 `summary` 에 기록합니다 (실패해도 발행은 진행)
+- **수정**: 개발 서버의 글 상세 페이지 **수정** 링크 또는 `/post/<slug>/update`. 공개 글은 자동 저장하지 않고 **저장** 버튼으로 저장하며, 저장 시 `updatedAt` 이 갱신됩니다. **숨기기**는 글을 초안으로 되돌립니다
+- 새 글 화면의 **초안 불러오기**로 작성 중이던 초안을 엽니다
+
+작성을 마치면 변경 사항을 커밋·푸시하면 Vercel 이 다시 빌드해 배포합니다.
+
+### CLI 로 작성
+
+#### 1. 초안 생성
 
 ```bash
 pnpm new-post my-post --category blog --title "글 제목"
@@ -112,7 +129,7 @@ pnpm new-post my-post --category blog --title "글 제목"
 
 `content/drafts/my-post.mdx` 가 만들어집니다. `--category` 는 `content/categories.json` 의 `pathname` 중 하나입니다.
 
-### 2. 작성 및 미리보기
+#### 2. 작성 및 미리보기
 
 - 본문은 MDX 로 작성합니다.
 - 이미지·영상은 `public/posts/my-post/` 에 넣고 `<Image src="/posts/my-post/a.webp" width={100} />` 처럼 참조합니다.
@@ -120,18 +137,18 @@ pnpm new-post my-post --category blog --title "글 제목"
 - 썸네일은 프론트매터 `thumbnail: /posts/my-post/thumbnail.webp` 로 지정합니다. (없으면 기본 이미지 사용)
 - `pnpm dev` 로 실행하면 초안도 피드와 상세 페이지에 노출되어 미리볼 수 있습니다.
 
-### 3. 공개
+#### 3. 공개
 
 ```bash
 pnpm publish-post my-post --summarize
 ```
 
 - `content/drafts/my-post.mdx` → `content/posts/my-post.mdx` 로 이동
-- `content/drafts/my-post/` 가 있으면 `public/posts/my-post/` 로 이동
+- `content/drafts/my-post/` 가 있으면 `public/posts/my-post/` 로 이동 (이미 있으면 파일 단위로 합침)
 - `publishedAt`, `updatedAt` 을 현재 시각으로 갱신
 - `--summarize` 를 주면 Claude AI 요약을 생성해 `summary` 에 기록
 
-이후 커밋·푸시하면 Vercel 이 다시 빌드해 배포합니다. 공개한 글을 수정했다면 `updatedAt` 을 직접 갱신하고, 요약을 다시 만들고 싶다면 `pnpm summarize my-post` 를 실행합니다.
+이후 커밋·푸시하면 Vercel 이 다시 빌드해 배포합니다. 공개한 글을 파일에서 직접 수정했다면 `updatedAt` 을 직접 갱신하고, 요약을 다시 만들고 싶다면 `pnpm summarize my-post` 를 실행합니다.
 
 ### 프론트매터
 
@@ -142,7 +159,7 @@ category: blog                              # content/categories.json 의 pathna
 thumbnail: /posts/my-post/thumbnail.webp    # 선택
 summary: AI 요약 (선택)
 publishedAt: '2026-01-19T15:15:51.062Z'     # ISO 8601
-updatedAt: '2026-01-19T15:16:14.497Z'       # 수정 시 직접 갱신
+updatedAt: '2026-01-19T15:16:14.497Z'       # 에디터 저장 시 자동, 파일 직접 수정 시 직접 갱신
 ---
 ```
 
@@ -165,7 +182,7 @@ updatedAt: '2026-01-19T15:16:14.497Z'       # 수정 시 직접 갱신
 
 ### 글 숨기기
 
-`content/posts/<slug>.mdx` 를 `content/drafts/` 로, `public/posts/<slug>/` 를 `content/drafts/<slug>/` 로 옮기면 사이트와 git 에서 모두 사라집니다. (`content/drafts` 는 gitignore 대상)
+에디터의 **숨기기** 버튼을 쓰거나, `content/posts/<slug>.mdx` 를 `content/drafts/` 로, `public/posts/<slug>/` 를 `content/drafts/<slug>/` 로 옮기면 사이트와 git 에서 모두 사라집니다. (`content/drafts` 는 gitignore 대상)
 
 ## Git Hooks
 

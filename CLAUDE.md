@@ -10,7 +10,7 @@ DB·인증·런타임 API 가 없으며, 글은 `content/` 의 MDX 파일을 git
 ## 개발 명령어
 
 ```bash
-pnpm run dev              # 개발 서버 (http://localhost:3000) — content/drafts 의 초안도 함께 노출
+pnpm run dev              # 개발 서버 (http://localhost:3000) — content/drafts 의 초안 노출 + /post/create 에디터
 pnpm run build            # 프로덕션 빌드 (정적 생성 + 타입 검사)
 pnpm run start            # 빌드 결과 실행
 pnpm run biome            # Biome lint + format (자동 수정)
@@ -55,8 +55,20 @@ pnpm summarize <slug>                                         # AI 요약을 프
 
 - `app/(with-header)/` — 피드(`/`), 카테고리 피드(`/category/[slug]`), 글 상세(`/post/[slug]`), 3D 피드(`/3D`), 커리어(`/career`)
 - `app/rss.xml/route.ts` — RSS (`dynamic = "force-static"`)
-- `app/posts/[slug]/[...file]/route.dev.ts` — **개발 전용**. `content/drafts/<slug>/` 의 초안 미디어를 `/posts/<slug>/<파일>` 로 서빙한다. `next.config.ts` 가 개발 단계에서만 `dev.ts` 를 `pageExtensions` 에 추가하므로 프로덕션 빌드에는 포함되지 않는다
+- `app/posts/[slug]/[...file]/route.dev.ts` — **개발 전용**. `content/drafts/<slug>/` 의 초안 미디어를 `/posts/<slug>/<파일>` 로 서빙한다
+- `app/(editor)/post/create/page.dev.tsx`, `app/(editor)/post/[slug]/update/page.dev.tsx` — **개발 전용** MDX 에디터 (아래 "에디터" 참고)
+- `*.dev.ts`·`*.dev.tsx` 는 `next.config.ts` 가 개발 단계에서만 `pageExtensions` 에 추가하므로 프로덕션 빌드에는 포함되지 않는다
 - `app/sitemap.ts` — 사이트맵
+
+### 에디터 (개발 서버 전용)
+
+- 배포 결과가 정적 사이트라 파일을 쓸 서버가 없으므로 에디터는 `pnpm dev` 에서만 동작한다. 헤더의 "글 작성"·상세의 "수정" 링크도 `NODE_ENV === "development"` 일 때만 렌더된다
+- 쓰기는 Server Action(`src/lib/editor/actions.ts`, `"use server"`)이 담당하고, 모든 액션이 개발 환경인지 먼저 확인한다. `page.dev.tsx` 에서만 import 되므로 프로덕션 번들에 들어가지 않는다
+- 파일 쓰기·이동·이름 변경 로직은 `src/lib/content/post-files.ts` 에 있고 CLI 스크립트(`scripts/`)와 공유한다. 경로 상수는 `src/lib/content/paths.ts`
+- 초안은 디바운스 자동 저장, 공개 글은 저장 버튼으로만 저장(`updatedAt` 갱신). 저장·업로드 요청은 클라이언트(`use-post-editor`)가 큐로 직렬화해 slug 변경(파일·미디어 폴더 이름 변경)과 꼬이지 않게 한다
+- 초안은 `posts.ts` 가 개발 피드에서 함께 읽으므로 **제목·카테고리가 유효해야** 한다. 그래서 제목·slug·카테고리가 채워졌을 때만 파일을 만든다
+- 미디어는 브라우저에서 webp(`webp-converter`)·webm(`webm-converter`)으로 변환해 업로드한다. 업로드 한도는 개발 단계에서만 `serverActions.bodySizeLimit` 로 늘린다
+- 미리보기는 `MDXClient` 로 클라이언트에서 컴파일하며, `MediaResizeContext` 가 있을 때 `MediaWidthWrapper` 가 드래그로 `width` 를 바꾸는 `ResizableMediaWrapper` 로 바뀐다
 
 ### 피드 무한 스크롤
 
@@ -90,8 +102,8 @@ ANTHROPIC_API_KEY=      # 로컬 AI 요약 스크립트 전용. 배포 환경에
 
 ## 주요 패턴
 
-- **글 작성 흐름**: `pnpm new-post` → `content/drafts` 에서 작성(`pnpm dev` 로 미리보기) → `pnpm publish-post <slug> --summarize` → 커밋/푸시
+- **글 작성 흐름**: `pnpm dev` → `/post/create` 에디터에서 작성(자동 임시저장) → 발행 → 커밋/푸시. CLI 로는 `pnpm new-post` → `content/drafts` 에서 작성 → `pnpm publish-post <slug> --summarize`
 - **이미지**: `public/posts/<slug>/` 의 정적 파일을 `next/image` 가 최적화. 원격 이미지 호스트 설정 없음
-- **AI 요약**: 로컬 스크립트(`scripts/lib/ai-summary.ts`, Anthropic SDK)로 생성해 프론트매터에 저장. 서버 라우트 없음
+- **AI 요약**: `src/lib/ai/summary.ts`(Anthropic SDK)로 생성해 프론트매터에 저장. CLI 스크립트와 개발 서버 에디터의 발행·저장에서만 호출하며 배포 환경에는 서버 라우트가 없다
 - **댓글**: Giscus (GitHub Discussions)
 - **캐싱**: 런타임 캐시 없음. 모든 페이지가 빌드 시 정적 HTML 로 생성되며 글이 바뀌면 다시 배포한다

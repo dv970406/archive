@@ -1,10 +1,9 @@
 import fs from "node:fs";
-import path from "node:path";
 import { cache } from "react";
 import type { Category } from "@/types/post";
+import { CATEGORIES_FILE } from "./paths";
 
-/** 카테고리 정의 파일. 포스트 프론트매터의 category 는 이 파일의 pathname 중 하나여야 한다 */
-const CATEGORIES_FILE = path.join(process.cwd(), "content", "categories.json");
+// 포스트 프론트매터의 category 는 categories.json 의 pathname 중 하나여야 한다
 
 const assertCategory = (value: unknown, index: number): Category => {
 	if (typeof value !== "object" || value === null) {

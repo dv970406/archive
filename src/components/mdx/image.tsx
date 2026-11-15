@@ -48,7 +48,9 @@ const MdxImage = ({ src, alt, width, onClick }: MdxImageProps) => {
 
 	const content =
 		width !== undefined ? (
-			<MediaWidthWrapper width={width}>{imageElement}</MediaWidthWrapper>
+			<MediaWidthWrapper src={src} width={width}>
+				{imageElement}
+			</MediaWidthWrapper>
 		) : (
 			imageElement
 		);

@@ -109,13 +109,24 @@ const PostDetailPage = async ({ params }: IPostDetailPageProps) => {
 	return (
 		<JsonLdProvider jsonLd={jsonLd}>
 			<main className="mx-auto py-12 max-w-3xl">
-				<Link
-					href="/"
-					className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 w-fit"
-				>
-					<ArrowLeft className="w-4 h-4" />
-					<span>목록으로</span>
-				</Link>
+				<div className="flex items-center justify-between mb-8">
+					<Link
+						href="/"
+						className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors w-fit"
+					>
+						<ArrowLeft className="w-4 h-4" />
+						<span>목록으로</span>
+					</Link>
+					{/* 에디터는 개발 서버 전용 (프로덕션 빌드에서는 이 분기가 제거된다) */}
+					{process.env.NODE_ENV === "development" && (
+						<Link
+							href={`/post/${slug}/update`}
+							className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+						>
+							수정
+						</Link>
+					)}
+				</div>
 
 				<PostDetailHeader
 					category={category}

@@ -20,6 +20,15 @@ const GlobalHeader = async () => {
 					</Link>
 
 					<nav className="flex items-center gap-6">
+						{/* 에디터는 개발 서버 전용 (프로덕션 빌드에서는 이 분기가 제거된다) */}
+						{process.env.NODE_ENV === "development" && (
+							<Link
+								href="/post/create"
+								className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+							>
+								글 작성
+							</Link>
+						)}
 						<Link
 							href="/career"
 							className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"

@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { DRAFTS_DIR } from "@/lib/content/posts";
+import { DRAFTS_DIR } from "@/lib/content/paths";
 
 /**
  * 개발 서버 전용 라우트.

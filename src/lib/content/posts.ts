@@ -11,12 +11,7 @@ import type {
 	PostFrontmatter,
 } from "@/types/post";
 import { getCategoryByPathname } from "./categories";
-
-const CONTENT_DIR = path.join(process.cwd(), "content");
-/** 공개 글 */
-const POSTS_DIR = path.join(CONTENT_DIR, "posts");
-/** 초안. git 에 포함되지 않으며 개발 서버에서만 미리보기로 노출된다 */
-export const DRAFTS_DIR = path.join(CONTENT_DIR, "drafts");
+import { DRAFTS_DIR, POSTS_DIR } from "./paths";
 
 const isDevelopment = process.env.NODE_ENV === "development";
 

@@ -99,7 +99,9 @@ const MdxVideo = ({ src, alt, width }: MdxVideoProps) => {
 	return (
 		<>
 			{width !== undefined ? (
-				<MediaWidthWrapper width={width}>{videoElement}</MediaWidthWrapper>
+				<MediaWidthWrapper src={src} width={width}>
+					{videoElement}
+				</MediaWidthWrapper>
 			) : (
 				videoElement
 			)}

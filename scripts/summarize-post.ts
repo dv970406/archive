@@ -7,7 +7,7 @@
 // 글 본문을 AI 로 요약해 프론트매터의 summary 에 기록한다. (공개 글과 초안 모두 대상)
 // summary 는 메타 description, RSS description, JSON-LD description 에 쓰인다.
 
-import { generateSummary } from "./lib/ai-summary";
+import { generateSummary } from "../src/lib/ai/summary";
 import {
 	assertSlug,
 	findPostFile,

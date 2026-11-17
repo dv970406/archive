@@ -2,7 +2,15 @@
 
 import { type HydrateProps, MDXClient } from "next-mdx-remote-client";
 import { serialize } from "next-mdx-remote-client/serialize";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+	Component,
+	type ReactNode,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { mdxComponents } from "@/components/mdx/mdx-components";
 import { MediaResizeContext } from "@/context/media-resize-context";
 
@@ -42,6 +50,7 @@ interface IMdxPreviewProps {
 const MdxPreview = ({ content, onContentChange }: IMdxPreviewProps) => {
 	const [mdxSource, setMdxSource] = useState<CompiledMdx | null>(null);
 	const [hasError, setHasError] = useState(false);
+	const [renderError, setRenderError] = useState<string | null>(null);
 	// 미디어 리사이즈로 바뀐 content 는 이미 컴파일했으므로 디바운스 재컴파일을 건너뛴다
 	const skipNextCompileRef = useRef(false);
 	const isFirstCompileRef = useRef(true);
@@ -92,26 +101,83 @@ const MdxPreview = ({ content, onContentChange }: IMdxPreviewProps) => {
 			<div className="flex-1 flex flex-col min-w-0">
 				<div className="px-6 py-3 border-b flex items-center justify-between">
 					<h2 className="text-sm font-medium">미리보기</h2>
-					{hasError && (
+					{hasError ? (
 						<span className="text-sm text-destructive">
 							MDX 문법 오류 — 컴포넌트 태그가 잘 닫혔는지 확인하세요
 						</span>
+					) : (
+						renderError && (
+							<span className="text-sm text-destructive">
+								렌더 오류 — 백틱(`)·중괄호({"{}"})가 짝이 맞는지 확인하세요
+							</span>
+						)
 					)}
 				</div>
 
 				<div className="prose dark:prose-invert max-w-none p-6 overflow-auto scrollbar-hidden break-all">
 					{mdxSource && (
-						<MDXClient
-							{...mdxSource}
-							components={mdxComponents}
-							onError={ErrorComponent}
-						/>
+						<PreviewErrorBoundary
+							resetKey={mdxSource}
+							onErrorChange={setRenderError}
+						>
+							<MDXClient
+								{...mdxSource}
+								components={mdxComponents}
+								onError={ErrorComponent}
+							/>
+						</PreviewErrorBoundary>
 					)}
 				</div>
 			</div>
 		</MediaResizeContext.Provider>
 	);
 };
+
+interface IPreviewErrorBoundaryProps {
+	/** 바뀌면(새 컴파일 결과가 오면) 에러 상태를 풀고 다시 그린다 */
+	resetKey: unknown;
+	onErrorChange: (message: string | null) => void;
+	children: ReactNode;
+}
+
+/**
+ * 컴파일은 통과했지만 렌더 중에 throw 하는 MDX 를 미리보기 안에 가둔다.
+ * 예) 백틱 짝이 밀려 `{count}` 가 코드 밖으로 나오면 "count is not defined" 로 렌더가 실패한다.
+ * 이 경계가 없으면 에러가 에디터까지 올라가 작성 중인 내용이 함께 날아간다
+ */
+class PreviewErrorBoundary extends Component<
+	IPreviewErrorBoundaryProps,
+	{ error: Error | null }
+> {
+	state: { error: Error | null } = { error: null };
+
+	static getDerivedStateFromError(error: Error) {
+		return { error };
+	}
+
+	componentDidCatch(error: Error) {
+		this.props.onErrorChange(error.message);
+	}
+
+	componentDidUpdate(prevProps: IPreviewErrorBoundaryProps) {
+		if (this.state.error && prevProps.resetKey !== this.props.resetKey) {
+			this.setState({ error: null });
+			this.props.onErrorChange(null);
+		}
+	}
+
+	render() {
+		if (this.state.error) {
+			return (
+				<div className="text-destructive">
+					<p className="font-semibold">미리보기를 그릴 수 없습니다.</p>
+					<p className="text-sm">{this.state.error.message}</p>
+				</div>
+			);
+		}
+		return this.props.children;
+	}
+}
 
 const ErrorComponent = () => {
 	return (

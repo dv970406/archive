@@ -9,6 +9,7 @@ import {
 	uploadMedia,
 } from "@/lib/editor/actions";
 import type { EditorDraft } from "@/lib/editor/types";
+import { useLocalBackup } from "./use-local-backup";
 
 /** 자동 저장 디바운스 지연 시간(밀리초) */
 const AUTO_SAVE_DEBOUNCE_MS = 1000;
@@ -48,6 +49,8 @@ export const usePostEditor = ({
 	const savedSlugRef = useRef<string | null>(
 		initialLocation ? initialDraft.slug : null,
 	);
+	/** savedSlugRef 와 같은 값. 렌더에 쓰는 곳(로컬 백업 키)을 위해 state 로도 둔다 */
+	const [savedSlug, setSavedSlug] = useState(savedSlugRef.current);
 	/** 편집할 때마다 증가. 저장이 끝났을 때 그 사이 편집이 없었는지 판별한다 */
 	const versionRef = useRef(0);
 	/** 저장·업로드 요청을 직렬화한다. 동시에 나가면 slug 변경(파일 이름 바꾸기)이 꼬인다 */
@@ -66,6 +69,14 @@ export const usePostEditor = ({
 		setDraft(draftRef.current);
 		setIsDirty(true);
 	}, []);
+
+	useLocalBackup({
+		draft,
+		initialDraft,
+		savedSlug,
+		isDirty,
+		onRestore: updateDraft,
+	});
 
 	const canSave =
 		draft.title.trim() !== "" &&
@@ -87,6 +98,7 @@ export const usePostEditor = ({
 		(result: { slug: string; renamedFrom: string | null }, version: number) => {
 			const isFirstSave = savedSlugRef.current === null;
 			savedSlugRef.current = result.slug;
+			setSavedSlug(result.slug);
 
 			// slug 를 바꿨으면 서버가 파일 안의 미디어 경로를 고쳤으므로 에디터 내용도 같게 맞춘다.
 			// 저장 요청 이후에 입력한 내용이 있을 수 있어 응답 본문으로 덮지 않고 현재 값에서 치환한다
